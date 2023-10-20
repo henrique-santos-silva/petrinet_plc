@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="dark">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+        
+        <script src="/static/index.js"></script> 
+        <script src="/static/iopt_config_validation.js"></script> 
+        <script src="/static/iopt_config_dom_generation.js"></script> 
+
+        <link rel="stylesheet" href="/static/mystyle.css">
+        
+        <title>PetriNet PLC Basic IMH</title>
+    </head>
+
+    <body  class="l0">
+        <div class="container" style="max-width: 640px; ">
+            <div id = "new_file" class="m-2 border rounded l1" style="display: none;">
+                <h2 class ="text-center">Carregue um dos arquivos da RdP</h2>
+                <div class="m-2 border d-flex flex-column justify-content-around rounded l2 ">
+                    <div class="container my-3">
+                        <label class="form-label" for="petrinet_xml_file">Rede de Petri (XML)</label>
+                        <input type="file" class="form-control" name="file" accept=".xml" id="petrinet_xml_file">
+                    </div>
+                    <div class="container my-3 l2">
+                        <label class="form-label" for="petrinet_json_file">Rede de Petri (JSON)</label>
+                        <input type="file" class="form-control" name="file" accept=".json" id="petrinet_json_file">
+                    </div>
+                    <a href="/api/getFile/IOPT.json" class="btn btn-secondary m-2" id="btn-download_iopt_from_server">
+                        Baixar IOPT.json previamente carregado.
+                    </a>
+                </div>
+                <div id = "IOPT_config">
+                    <div class="m-2 border d-flex flex-column justify-content-around rounded l2" >
+                        <h3 class ="text-center">Configuração adicional p/ IOPT</h3>
+                        <div class="m-1 p-1 border rounded l3">
+                            <h4 class ="text-center">Mapeamento sinal de entrada ⇒ transição</h4>
+                            <p>Valid tokens: ()&|^! True False i0 -> i7</p>
+                            <div class="form d-flex flex-column" id="transition_signal_enabling_condition_container">
+                            </div>
+                        </div>
+                        <div class="m-1 p-1 border rounded l3">
+                            <h4 class ="text-center">Mapeamento lugar ⇒ sinal de saída</h4>
+                            <div class="d-flex flex-column" id="output_activation_condition_container"></div>
+                        </div>
+                        <div class="m-1 p-1 border rounded l3" id="timer_div">
+                            <h4 class ="text-center">Mapeamento de temporizadores de transições</h4>
+                            <div class="d-flex flex-column" id="timed_transition_timer_container"></div>
+                        </div>
+                        <div class="m-2 d-flex flex-row justify-content-around">
+                            <button type="button" class="btn btn-secondary mx-2" id="btn-cancel_iopt_config">Cancelar</button>
+                            <button type="button" class="btn btn-secondary flex-grow-1 mx-2" id="btn-try_to_send_iopt_config">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                              
+            <div id="IO_monitor" class="m-2 border justify-content-center rounded l1" style="display: none;">
+                <h2 class ="text-center">Monitor de Sinais</h2>
+                <div class="m-2 p-2 border rounded l2">
+                    <h6 class ="text-center">
+                        Entradas
+                    </h6>
+                    <div class="d-flex flex-row justify-content-around rounded">
+                        <div class ="led" id="i0">i0</div>
+                        <div class ="led" id="i1">i1</div>
+                        <div class ="led" id="i2">i2</div>
+                        <div class ="led" id="i3">i3</div>
+                        <div class ="led" id="i4">i4</div>
+                        <div class ="led" id="i5">i5</div>
+                        <div class ="led" id="i6">i6</div>
+                        <div class ="led" id="i7">i7</div>
+                    </div>
+                </div>
+                <div class="m-2 p-2 border rounded l2">
+                    <h6 class ="text-center">
+                        Saídas
+                    </h6>
+                    <div class="d-flex flex-row justify-content-around rounded">
+                        <div class ="led" id="o0">o0</div>
+                        <div class ="led" id="o1">o1</div>
+                        <div class ="led" id="o2">o2</div>
+                        <div class ="led" id="o3">o3</div>
+                        <div class ="led" id="o4">o4</div>
+                        <div class ="led" id="o5">o5</div>
+                        <div class ="led" id="o6">o6</div>
+                        <div class ="led" id="o7">o7</div>
+                    </div>
+                </div>
+            </div>    
+
+            <div id="user_command_buttons" class="m-2 border rounded l1" style="display: none;">
+                <h2 class ="text-center">Comandos do Usuário</h2>
+                <div class="m-2 d-flex flex-column justify-content-around rounded">
+                    <button type="button" class="btn btn-secondary m-2" id ="btn-start">Iniciar</button>
+                    <button type="button" class="btn btn-secondary m-2" id ="btn-pause" >Interromper</button>
+                    <button type="button" class="btn btn-secondary m-2" id ="btn-resume">Retomar</button>
+                    <button type="button" class="btn btn-secondary m-2" id ="btn-finish">Finalizar após ciclo</button>
+                    <button type="button" class="btn btn-secondary m-2" id ="btn-finish_now">Finalizar imediatamente</button>
+                </div>
+            </div>
+            <div id="disconnected" class="m-2 border rounded l1" style="display: none;">
+                <h1 class ="text-center">Perda de conexão com o servidor.</h1>
+                <h2 class ="text-center">Verifique se o Raspberry Pi está ligado. </h2>
+            </div>
+                
+        </div>
+    </body>
+</html>
