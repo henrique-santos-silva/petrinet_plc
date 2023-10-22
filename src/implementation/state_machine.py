@@ -51,9 +51,7 @@ class StateMachine(AbstractStateMachine):
                 WebServerEvents.startExecution:             (S.Running                      , A.StartExecution)
             },
             S.Running: {
-                # IE.NONE:                                    (S.Running                      , A.PetriNetStep),
                 PetriNetEvents.deadLock:                    (S.DeadLock                     , A.DoNothing),
-                # PetriNetEvents.cycleFinished:               (S.Running                      , A.PetriNetStep),
                 WebServerEvents.pauseExecution:             (S.Paused                       , A.PauseExecution),
                 WebServerEvents.finishExecutionAfterCycle:  (S.WaitingEndOfCycle            , A.DoNothing),
                 WebServerEvents.finishExecutionImmediately: (S.PetriNetFilesUploaded        , A.FinishExecution)
@@ -66,7 +64,6 @@ class StateMachine(AbstractStateMachine):
                 WebServerEvents.finishExecutionImmediately: (S.PetriNetFilesUploaded        , A.FinishExecution)
             },
             S.WaitingEndOfCycle:{
-                # IE.NONE:                                    (S.WaitingEndOfCycle            , A.PetriNetStep),
                 PetriNetEvents.cycleFinished:               (S.PetriNetFilesUploaded        , A.FinishExecution),
                 WebServerEvents.finishExecutionImmediately: (S.PetriNetFilesUploaded        , A.FinishExecution)
             }
@@ -121,7 +118,6 @@ class StateMachine(AbstractStateMachine):
 
             
 
-        
         Actions = StateMachine.Actions
         switch_case_dict:dict[Actions,Callable[...,None|StateMachine.InternalEvents]] = {
             Actions.CheckPetriNetFilesExistence: exec_CheckPetriNetFilesExistence,
@@ -145,9 +141,7 @@ class StateMachine(AbstractStateMachine):
                 event,
                 (self._state,StateMachine.Actions.DoNothing)
             ) 
-            # print(event.name,self._state.name,action.name)
             self._exec_action(action)
-            # print(self._events_queue.qsize())
             self._webserver_handler.post_state(self._state)
             self._webserver_handler.post_IOs(self._io_handler.get_all())
 

@@ -346,49 +346,6 @@ class TransitionsCollection(AbstractPetriNetTransitionsCollection):
             
             return None
 
-
-
-
-
-    # def _generate_transition_chosen_to_fire(self):
-    #     while True:
-    #         self._update_petri_enabled_instantaneous_transitions()
-    #         if not self._petri_enabled_instantaneous_transitions.is_empty:
-    #             # yields None until there is at least one signal_enabled_instantaneous_transition
-    #             self._update_signal_enabled_instantaneous_transitions()
-    #             while self._signal_enabled_instantaneous_transitions.is_empty:
-    #                 yield None
-    #                 if self._io_handler.has_been_updated: #some io change has happened
-    #                     self._update_signal_enabled_instantaneous_transitions()
-                
-    #             # chooses one fully enabled instantaneous_transition
-    #             yield self._signal_enabled_instantaneous_transitions.choose_based_on_priority_and_rate()
-    #         else:
-    #             self._update_petri_enabled_timed_transitions()
-    #             if not self._petri_enabled_timed_transitions.is_empty:
-                    
-    #                 self._update_signal_enabled_timed_transitions()
-    #                 self._update_time_enabled_timed_transitions()
-
-    #                 # yields None until there is at least one timed transition signal_enabled and time_enabled
-    #                 while self._time_enabled_timed_transitions.is_empty:
-    #                     yield None
-    #                     if self._io_handler.has_been_updated:
-
-    #                         self._update_signal_enabled_timed_transitions()
-                            
-    #                         self._update_time_enabled_timed_transitions()
-    #                         continue
-    #                     if not self._signal_enabled_timed_transitions.is_empty:
-    #                         self._update_time_enabled_timed_transitions()
-                    
-    #                 # chooses one fully enabled timed_transition
-    #                 yield self._time_enabled_timed_transitions.choose_based_on_priority_and_rate()
-    #             else:
-    #                 # No instantaneous transitions nor timed transitions are petri enabled.
-    #                 # This won't change. Raise a deadlock error
-    #                 raise PetriNetDeadlockError
-
     def _update_petri_enabled_instantaneous_transitions(self):
         self._petri_enabled_instantaneous_transitions.update_from_superset(
             superset = self._instantaneous_transitions,
