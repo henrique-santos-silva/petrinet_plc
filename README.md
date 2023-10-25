@@ -42,3 +42,12 @@ Petri net-based Programmable Logic Controller
 4. **Install Project Dependencies:**
    ```
    pip install -r requirements.txt
+
+## Running
+1. **run the run.py script**
+   ```bash
+   python run.py
+2. **Open browser**
+   * **Human Machine Interface**:[http://[::1]:50000](http://[::1]:50000)
+   * **IOs Emulator**[http://[::1]:50001](http://[::1]:50001)
+   
