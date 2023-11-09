@@ -4,6 +4,7 @@ from src.implementation.io_handlers import IOWebMocker
 class PetriNetNodeTests(unittest.TestCase):
 
     def test_raises_for_invalid_syntax(self):
+        BoolParser.set_valid_extra_tokens(valid_input_tokens=['i1'])
         self.assertRaises(SyntaxError,BoolParser,"")
         self.assertRaises(SyntaxError,BoolParser,"|")
         self.assertRaises(SyntaxError,BoolParser,"&")
@@ -17,6 +18,7 @@ class PetriNetNodeTests(unittest.TestCase):
 
 
     def test_returns_the_expected_value(self):
+        BoolParser.set_valid_extra_tokens(['i1'])
         f = BoolParser("i1").generate_function()
         self.assertEqual(f(i1=True),True)
         self.assertEqual(f(i1=False),False)
@@ -28,6 +30,7 @@ class PetriNetNodeTests(unittest.TestCase):
             "i3":True,
             "i4":False
         }
+        BoolParser.set_valid_extra_tokens(valid_input_tokens=list(digital_inputs.keys()),valid_place_tokens=["P0"])
         self.assertEqual(BoolParser("!(i0)").generate_function()(**digital_inputs),                 False)
         self.assertEqual(BoolParser("!(i2)",).generate_function()(**digital_inputs),                True)
         self.assertEqual(BoolParser("i0 ^ i1 ").generate_function()(**digital_inputs),              False)
