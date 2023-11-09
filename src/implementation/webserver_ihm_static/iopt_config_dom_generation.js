@@ -99,150 +99,182 @@ function generate_IOPT_config_div(IOPT_dictionary,loaded_from_json){
     let transitions = [...IOPT_dictionary["instantaneous_transitions"],...IOPT_dictionary["timed_transitions"]]
     transitions.forEach((transition,index)=>{
 
-        const transitionName = transition["id"] 
-        const outerDiv = document.createElement('div');
-        outerDiv.classList.add('d-flex', 'flex-row', 'justify-content-center', 'my-1');
-        
-        // Cria a etiqueta <label>
-        const label = document.createElement('label');
-        label.classList.add('form-label', 'm-2');
-        label.setAttribute('for', `transition_signal_enabling_condition-${transitionName}`);
-        label.textContent = transitionName;
-
-        // Cria o input
-        const input = document.createElement('input');
-        input.setAttribute('type', 'text');
-        input.classList.add('transition_signal_enabling_condition_textfield');
-        input.setAttribute('name', `transition_signal_enabling_condition-${transitionName}`);
-        input.setAttribute('id', `transition_signal_enabling_condition-${transitionName}`);
-
-        input.addEventListener("change", function(){
-            extra_tokens = ["i0","i1","i2","i3","i4","i5","i6","i7",]
-            let valid_expression_bool;
-            let new_string; 
-            [valid_expression_bool,new_string] = is_valid_expression($(this).val(),extra_tokens)
-            if (valid_expression_bool && new_string != ""){
-                $(this).attr('class','transition_signal_enabling_condition_textfield')
-                $(this).val(new_string)
-            } else {
-                $(this).attr('class','transition_signal_enabling_condition_textfield border border-danger')
-            }
-        });
-
-
-        if (loaded_from_json){
-          input.value = transition["signal_enabling_expression"]
-          const event = new Event('change');
-          input.dispatchEvent(event);
-        }else{
-          input.value = "true"
+      const transitionName = transition["id"]
+      const outerDiv = document.createElement('div');
+      outerDiv.classList.add('row', 'my-1');
+    
+      // Cria a coluna para o label
+      const labelCol = document.createElement('div');
+      labelCol.classList.add('col-md-3', 'd-flex', 'align-items-center');
+    
+      // Cria a etiqueta <label>
+      const label = document.createElement('label');
+      label.classList.add('form-label');
+      label.setAttribute('for', `transition_signal_enabling_condition-${transitionName}`);
+      label.textContent = transitionName;
+    
+      // Anexa o label à sua coluna
+      labelCol.appendChild(label);
+    
+      // Cria a coluna para o input
+      const inputCol = document.createElement('div');
+      inputCol.classList.add('col-md-9');
+    
+      // Cria o input
+      const input = document.createElement('input');
+      input.setAttribute('type', 'text');
+      input.classList.add('form-control'); // Bootstrap class for inputs
+      input.setAttribute('name', `transition_signal_enabling_condition-${transitionName}`);
+      input.setAttribute('id', `transition_signal_enabling_condition-${transitionName}`);
+      
+      input.addEventListener("change", function(){
+        extra_tokens = ["i0","i1","i2","i3","i4","i5","i6","i7",]
+        let valid_expression_bool;
+        let new_string; 
+        [valid_expression_bool,new_string] = is_valid_expression($(this).val(),extra_tokens)
+        if (valid_expression_bool && new_string != ""){
+            $(this).attr('class','form-control transition_signal_enabling_condition_textfield')
+            $(this).val(new_string)
+        } else {
+            $(this).attr('class','form-control transition_signal_enabling_condition_textfield border border-danger')
         }
-        
+      });
 
 
-        // Anexa os elementos à div externa
-        outerDiv.appendChild(label);
-        outerDiv.appendChild(input);
-
-        // Anexa a div externa à div principal
-        transition_signal_enabling_condition_Container.appendChild(outerDiv);
-
-    })
+      if (loaded_from_json){
+        input.value = transition["signal_enabling_expression"]
+        const event = new Event('change');
+        input.dispatchEvent(event);
+      }else{
+        input.value = "true"
+      }
+    
+      // Anexa o input à sua coluna
+      inputCol.appendChild(input);
+    
+      // Anexa as colunas à div externa
+      outerDiv.appendChild(labelCol);
+      outerDiv.appendChild(inputCol);
+    
+      // Anexa a div externa à div principal
+      transition_signal_enabling_condition_Container.appendChild(outerDiv);
+    });
+    
 
     // output_activation_condition_container
+    // Seleciona o container
     const output_activation_condition_Container = document.getElementById('output_activation_condition_container');
-    output_activation_condition_Container.textContent = ""
+    output_activation_condition_Container.textContent = "";
 
-    for (let i=0;i<8;i++){
+    for (let i = 0; i < 8; i++) {
+      const outputName = `o${i}`;
+      const outerDiv = document.createElement('div');
+      outerDiv.classList.add('row', 'my-1'); // Usando 'row' em vez de 'd-flex'
 
-        const outputName = `o${i}` 
-        const outerDiv = document.createElement('div');
-        outerDiv.classList.add('d-flex', 'flex-row', 'justify-content-center', 'my-1');
-        
-        // Cria a etiqueta <label>
-        const label = document.createElement('label');
-        label.classList.add('form-label', 'm-2');
-        label.setAttribute('for', `output_activation_condition-${outputName}`);
-        label.textContent = outputName;
+      // Cria a coluna para o label
+      const labelCol = document.createElement('div');
+      labelCol.classList.add('col-md-3', 'd-flex', 'align-items-center'); // Definindo o tamanho da coluna e alinhamento
 
-        // Cria o input
-        const input = document.createElement('input');
-        input.setAttribute('type', 'text');
-        input.classList.add('output_activation_condition_textfield');
-        input.setAttribute('name', `output_activation_condition-${outputName}`);
-        input.setAttribute('id', `output_activation_condition-${outputName}`);
-        input.addEventListener("change", function(){
+      // Cria a etiqueta <label>
+      const label = document.createElement('label');
+      label.classList.add('form-label');
+      label.setAttribute('for', `output_activation_condition-${outputName}`);
+      label.textContent = outputName;
+      labelCol.appendChild(label); // Anexa o label à sua coluna
+
+      // Cria a coluna para o input
+      const inputCol = document.createElement('div');
+      inputCol.classList.add('col-md-9'); // Definindo o tamanho da coluna
+
+      // Cria o input
+      const input = document.createElement('input');
+      input.setAttribute('type', 'text');
+      input.classList.add('form-control'); // Usando 'form-control' para estilização do Bootstrap
+      input.setAttribute('name', `output_activation_condition-${outputName}`);
+      input.setAttribute('id', `output_activation_condition-${outputName}`);
+      // ...restante do código do input...
+
+      input.addEventListener("change", function(){
           
-          let extra_tokens = IOPT_dictionary["places"].map(function(place){return place["id"]})
-          let valid_expression_bool;
-          let new_string; 
-          [valid_expression_bool,new_string] = is_valid_expression($(this).val(),extra_tokens)
-          if (valid_expression_bool && new_string != ""){
-            $(this).attr('class','output_activation_condition_textfield')
-            $(this).val(new_string)
-          } else {
-            $(this).attr('class','output_activation_condition_textfield border border-danger')
-          }
-        });
-        
-        if (loaded_from_json){
-          input.value=IOPT_dictionary["marking_to_output_expressions"][outputName]
-          const event = new Event('change');
-          input.dispatchEvent(event);
-        }else{
-          input.value = "false"
+        let extra_tokens = IOPT_dictionary["places"].map(function(place){return place["id"]})
+        let valid_expression_bool;
+        let new_string; 
+        [valid_expression_bool,new_string] = is_valid_expression($(this).val(),extra_tokens)
+        if (valid_expression_bool && new_string != ""){
+          $(this).attr('class','form-control output_activation_condition_textfield')
+          $(this).val(new_string)
+        } else {
+          $(this).attr('class','form-control output_activation_condition_textfield border border-danger')
         }
-        // Anexa os elementos à div externa
-        outerDiv.appendChild(label);
-        outerDiv.appendChild(input);
+      });
+      
+      if (loaded_from_json){
+        input.value=IOPT_dictionary["marking_to_output_expressions"][outputName]
+        const event = new Event('change');
+        input.dispatchEvent(event);
+      }else{
+        input.value = "false"
+      }      
+      inputCol.appendChild(input);
 
-        // Anexa a div externa à div principal
-        output_activation_condition_Container.appendChild(outerDiv);
+      // Anexa as colunas à div externa
+      outerDiv.appendChild(labelCol);
+      outerDiv.appendChild(inputCol);
+
+      // Anexa a div externa à div principal
+      output_activation_condition_Container.appendChild(outerDiv);
     }
 
     //--------------------------------
     const timed_transition_timer_Element = document.getElementById('timed_transition_timer_container');
     timed_transition_timer_Element.textContent = "";
-    // $("#timed_transition_timer_container").hide()
-    let _ = IOPT_dictionary["timed_transitions"].length > 0 ? $("#timer_div").show() : $("#timer_div").hide()
+    // Controle de visibilidade do container de timers
+    IOPT_dictionary["timed_transitions"].length > 0 ? $("#timer_div").show() : $("#timer_div").hide();
 
-    IOPT_dictionary["timed_transitions"].forEach((transition,index)=>{
-        const transitionName = transition["id"] 
+    IOPT_dictionary["timed_transitions"].forEach((transition, index) => {
+      const transitionName = transition["id"];
 
-        const outerDiv = document.createElement('div');
-        outerDiv.classList.add('d-flex', 'flex-row', 'justify-content-center', 'my-1');
+      // Cria a linha 'row' para o grupo de label e input
+      const outerDiv = document.createElement('div');
+      outerDiv.classList.add('row', 'my-1');
 
-        // Cria a etiqueta <label>
-        const label = document.createElement('label');
-        label.classList.add('form-label', 'm-2');
-        label.setAttribute('for', `timed_transition_timer-${transitionName}`);
-        label.textContent = transitionName;
+      // Cria a coluna para o label
+      const labelCol = document.createElement('div');
+      labelCol.classList.add('col-md-3', 'd-flex', 'align-items-center');
 
-        // Cria o input
-        const input = document.createElement('input');
-        input.setAttribute('type', 'number');
-        input.setAttribute('step', '0.01');
-        input.classList.add('timed_transition_timer_textfield');
-        input.setAttribute('name', `timed_transition_timer-${transitionName}`);
-        input.setAttribute('id', `timed_transition_timer-${transitionName}`);
-        input.setAttribute('required', 'required');
-        if (loaded_from_json){
-          input.value = transition["timer_sec"]
-        }else{
-          input.value = 0.01
-        }
-        input.addEventListener("change", function(){
-          $(this).val(Math.max(0.01,$(this).val()))
-        });
+      // Cria a etiqueta <label>
+      const label = document.createElement('label');
+      label.classList.add('form-label');
+      label.setAttribute('for', `timed_transition_timer-${transitionName}`);
+      label.textContent = transitionName;
+      labelCol.appendChild(label);
 
-        // Anexa os elementos à div externa
-        outerDiv.appendChild(label);
-        outerDiv.appendChild(input);
+      // Cria a coluna para o input
+      const inputCol = document.createElement('div');
+      inputCol.classList.add('col-md-9');
 
-        // Anexa a div externa à div principal
-        timed_transition_timer_Element.appendChild(outerDiv);
-        
-    })
+      // Cria o input
+      const input = document.createElement('input');
+      input.setAttribute('type', 'number');
+      input.setAttribute('step', '0.01');
+      input.classList.add('form-control'); // Classe do Bootstrap para estilização dos inputs
+      input.setAttribute('name', `timed_transition_timer-${transitionName}`);
+      input.setAttribute('id', `timed_transition_timer-${transitionName}`);
+      input.setAttribute('required', true);
+      input.value = loaded_from_json ? transition["timer_sec"] : 0.00;
+      input.addEventListener("change", function () {
+        this.value = Math.max(0.00, parseFloat(this.value));
+      });
+      inputCol.appendChild(input);
+
+      // Anexa as colunas à div externa
+      outerDiv.appendChild(labelCol);
+      outerDiv.appendChild(inputCol);
+
+      // Anexa a div externa à div principal
+      timed_transition_timer_Element.appendChild(outerDiv);
+    });
+
 
     $('#IOPT_config').show()
 }
