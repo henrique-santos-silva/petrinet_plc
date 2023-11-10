@@ -52,7 +52,7 @@ function  is_form_valid(IOPT_dictionary){
     const timed_condition_timer = {}
 
     // Loop through the children
-    extra_tokens = ["i0","i1","i2","i3","i4","i5","i6","i7",]
+    extra_tokens = ["i0","i1","i2","i3","i4","i5","i6","i7","i8","i9","i10","i11","i12","i13","i14","i15"]
     for (let i = 0; i < transition_signal_enabling_condition_Container.children.length; i++) {
         const child = transition_signal_enabling_condition_Container.children[i];
         const label = child.querySelector(".form-label");

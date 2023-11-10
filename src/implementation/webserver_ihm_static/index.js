@@ -104,7 +104,7 @@ $(document).ready(function (){
             localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
             generate_IOPT_config_div(IOPT_dictionary,loaded_from_json=false)
             apply_popover_to_inputs(
-                inputs = ["i0","i1","i2","i3","i4","i5","i6","i7"],
+                inputs = ["i0","i1","i2","i3","i4","i5","i6","i7","i8","i9","i10","i11","i12","i13","i14","i15"],
                 places = IOPT_dictionary.places.map(place => place.id)
             )
 
@@ -127,7 +127,7 @@ $(document).ready(function (){
             localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
             generate_IOPT_config_div(IOPT_dictionary,loaded_from_json=true)
             apply_popover_to_inputs(
-                inputs = ["i0","i1","i2","i3","i4","i5","i6","i7"],
+                inputs = ["i0","i1","i2","i3","i4","i5","i6","i7","i8","i9","i10","i11","i12","i13","i14","i15"],
                 places = IOPT_dictionary.places.map(place => place.id)
             )   
             console.log(IOPT_dictionary)
