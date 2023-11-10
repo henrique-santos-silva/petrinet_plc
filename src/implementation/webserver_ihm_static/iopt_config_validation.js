@@ -23,7 +23,7 @@ function is_valid_expression(expression,extra_tokens){
     }
     s2 = tmp_tokens.join("")
     const contains_only_valid_tokens = s1 == s2
-    const final_expression = tmp_tokens.join(" ")
+    const final_expression = tmp_tokens.join(" ") + " "
     const proxy_expression_for_validation = tmp_tokens_bool_substitution.join(" ")
     
     if (contains_only_valid_tokens){

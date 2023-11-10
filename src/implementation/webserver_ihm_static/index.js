@@ -103,6 +103,11 @@ $(document).ready(function (){
         .then((IOPT_dictionary) => {
             localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
             generate_IOPT_config_div(IOPT_dictionary,loaded_from_json=false)
+            apply_popover_to_inputs(
+                inputs = ["i0","i1","i2","i3","i4","i5","i6","i7"],
+                places = IOPT_dictionary.places.map(place => place.id)
+            )
+
             console.log(IOPT_dictionary)
             $("#user_command_buttons").hide()
             $("#IO_monitor").hide()            
@@ -121,6 +126,10 @@ $(document).ready(function (){
         .then((IOPT_dictionary) => {
             localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
             generate_IOPT_config_div(IOPT_dictionary,loaded_from_json=true)
+            apply_popover_to_inputs(
+                inputs = ["i0","i1","i2","i3","i4","i5","i6","i7"],
+                places = IOPT_dictionary.places.map(place => place.id)
+            )   
             console.log(IOPT_dictionary)
             $("#user_command_buttons").hide()
             $("#IO_monitor").hide()

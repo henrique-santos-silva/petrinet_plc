@@ -125,8 +125,11 @@ function generate_IOPT_config_div(IOPT_dictionary,loaded_from_json){
       input.setAttribute('type', 'text');
       input.classList.add('form-control'); // Bootstrap class for inputs
       input.setAttribute('name', `transition_signal_enabling_condition-${transitionName}`);
-      input.setAttribute('id', `transition_signal_enabling_condition-${transitionName}`);
+      input.setAttribute('id', `transition_signal_enabling_condition-${transitionName}`); 
+      input.setAttribute('autocomplete', `off`); 
       
+
+
       input.addEventListener("change", function(){
         extra_tokens = ["i0","i1","i2","i3","i4","i5","i6","i7",]
         let valid_expression_bool;
