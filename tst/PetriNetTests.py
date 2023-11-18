@@ -406,10 +406,8 @@ class TransitionsCollectionTests(unittest.TestCase):
         self.assertFalse(timed_transition.is_time_enabled())
         time.sleep(0.041)
         self.assertTrue(timed_transition.is_time_enabled())
-        # even though Time transition is fully enabled (petri,signal and time), it wont be selected,
-        # because there is some instantaneous transition petri enabled
         
-        self.assertIs(transitions_collection.get_transition_chosen_to_fire(),None)
+        self.assertIs(transitions_collection.get_transition_chosen_to_fire(),timed_transition)
         self.io_handler._digital_inputs["di0"] = True
         self.assertTrue(instantaneous_transition.is_signal_enabled())
         self.assertIs(transitions_collection.get_transition_chosen_to_fire(),instantaneous_transition)

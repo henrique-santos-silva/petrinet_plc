@@ -254,7 +254,7 @@ class TransitionsCollection(AbstractPetriNetTransitionsCollection):
                 transitions:list[InstantaneousTransition|TimedTransition],
                 io_handler:AbstractIOHandler) -> None:
         self._io_handler = io_handler
-        self._inner_state_function_get_transition_chosen_to_fire = TransitionsCollection.InnerStateFunctionGetTransitionChosenToFire.CHECK_INSTANTANEOUS_TRANSITION_PETRI_ENABLING
+        self._inner_state_function_get_transition_chosen_to_fire = TransitionsCollection.InnerStateFunctionGetTransitionChosenToFire.CHECK_PETRI_ENABLING
 
         self._instantaneous_transitions = TransitionsCollection.TransitionsByPriority()
         self._timed_transitions =  TransitionsCollection.TransitionsByPriority()
@@ -296,55 +296,38 @@ class TransitionsCollection(AbstractPetriNetTransitionsCollection):
         enum_inner_states = TransitionsCollection.InnerStateFunctionGetTransitionChosenToFire
 
         if self._inner_state_function_get_transition_chosen_to_fire == (
-            enum_inner_states.CHECK_INSTANTANEOUS_TRANSITION_PETRI_ENABLING):
+            enum_inner_states.CHECK_PETRI_ENABLING):
             self._update_petri_enabled_instantaneous_transitions()
-            if self._petri_enabled_instantaneous_transitions.is_empty:
-                self._inner_state_function_get_transition_chosen_to_fire = enum_inner_states.CHECK_TIMED_TRANSITION_PETRI_ENABLING
-            else:
-                self._inner_state_function_get_transition_chosen_to_fire =enum_inner_states.WAITING_INSTANTANEOUS_TRANSITION_SIGNAL_ENABLING
-                self._update_signal_enabled_instantaneous_transitions()
+            self._update_petri_enabled_timed_transitions()
+            if (
+                self._petri_enabled_instantaneous_transitions.is_empty and
+                self._petri_enabled_timed_transitions.is_empty):
+                raise PetriNetDeadlockError
+            
+            self._inner_state_function_get_transition_chosen_to_fire = enum_inner_states.WAITING_FULL_ENABLING
+            
+            self._update_signal_enabled_instantaneous_transitions()            
+            self._update_signal_enabled_timed_transitions()
+            self._update_time_enabled_timed_transitions()
 
         if self._inner_state_function_get_transition_chosen_to_fire == (
-            enum_inner_states.WAITING_INSTANTANEOUS_TRANSITION_SIGNAL_ENABLING):
+            enum_inner_states.WAITING_FULL_ENABLING):
 
             if self._io_handler.has_been_updated: #some io change has happened
-                self._update_signal_enabled_instantaneous_transitions()
-            
-            if not self._signal_enabled_instantaneous_transitions.is_empty:
-                self._inner_state_function_get_transition_chosen_to_fire =enum_inner_states.CHECK_INSTANTANEOUS_TRANSITION_PETRI_ENABLING
-                return self._signal_enabled_instantaneous_transitions.choose_based_on_priority_and_rate() 
-            
-            return None
+                self._update_signal_enabled_instantaneous_transitions()            
+                self._update_signal_enabled_timed_transitions()
+                self._update_time_enabled_timed_transitions()
 
-        if self._inner_state_function_get_transition_chosen_to_fire == (
-            enum_inner_states.CHECK_TIMED_TRANSITION_PETRI_ENABLING):
-            
-            self._update_petri_enabled_timed_transitions()
-            if self._petri_enabled_timed_transitions.is_empty:
-                # No transition (instantaneous nor timed) are petri_enabled. This is a deadlock
-                raise PetriNetDeadlockError
-            else:
-                self._update_signal_enabled_timed_transitions()
-                self._update_time_enabled_timed_transitions()
-                self._inner_state_function_get_transition_chosen_to_fire = (
-                    enum_inner_states.WAITING_TIMED_TRANSITION_SIGNAL_ENABLING_AND_TIME_ENABLING
-                )
-        
-        if self._inner_state_function_get_transition_chosen_to_fire == (
-            enum_inner_states.WAITING_TIMED_TRANSITION_SIGNAL_ENABLING_AND_TIME_ENABLING):
-        
-            if self._io_handler.has_been_updated:
-                self._update_signal_enabled_timed_transitions()
-                self._update_time_enabled_timed_transitions()
-            
+            if not self._signal_enabled_instantaneous_transitions.is_empty:
+                self._inner_state_function_get_transition_chosen_to_fire =enum_inner_states.CHECK_PETRI_ENABLING
+                return self._signal_enabled_instantaneous_transitions.choose_based_on_priority_and_rate() 
+
             if not self._signal_enabled_timed_transitions.is_empty:
                 self._update_time_enabled_timed_transitions()
-            
-            if not self._time_enabled_timed_transitions.is_empty:
-                self._inner_state_function_get_transition_chosen_to_fire =enum_inner_states.CHECK_INSTANTANEOUS_TRANSITION_PETRI_ENABLING
-                return self._time_enabled_timed_transitions.choose_based_on_priority_and_rate()
-            
-            return None
+                if not self._time_enabled_timed_transitions.is_empty:
+                    return self._time_enabled_timed_transitions.choose_based_on_priority_and_rate()
+        
+        return None
 
     def _update_petri_enabled_instantaneous_transitions(self):
         self._petri_enabled_instantaneous_transitions.update_from_superset(
@@ -377,10 +360,8 @@ class TransitionsCollection(AbstractPetriNetTransitionsCollection):
 
     #Helper classes
     class InnerStateFunctionGetTransitionChosenToFire(Enum):
-        CHECK_INSTANTANEOUS_TRANSITION_PETRI_ENABLING = 0
-        WAITING_INSTANTANEOUS_TRANSITION_SIGNAL_ENABLING = auto()
-        CHECK_TIMED_TRANSITION_PETRI_ENABLING = auto()
-        WAITING_TIMED_TRANSITION_SIGNAL_ENABLING_AND_TIME_ENABLING = auto()
+        CHECK_PETRI_ENABLING = 0
+        WAITING_FULL_ENABLING = auto()
 
 
 
