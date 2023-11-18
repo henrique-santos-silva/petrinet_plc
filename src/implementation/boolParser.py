@@ -49,9 +49,9 @@ class BoolParser(AbstractBoolParser):
                 tokens.append(substring)
                 p0 = p1 = p1+1
                 continue
-            elif substring[0] in ('i','p') and substring in self._valid_extra_tokens:
+            elif substring[0] in ('d','p') and substring in self._valid_extra_tokens:
                 token_tmp = substring
-            elif substring[0] in ('i','p') and not (substring in self._valid_extra_tokens):
+            elif substring[0] in ('d','p') and not (substring in self._valid_extra_tokens):
                 if token_tmp is not None:
                     tokens.append(token_tmp)
                     token_tmp = None
@@ -80,10 +80,10 @@ class BoolParser(AbstractBoolParser):
             "&":"and"
         }
         for i in range(len(self._tokens)):
-            if self._tokens[i] in ["true","false"] or self._tokens[i][0] in ('i','p'):
+            if self._tokens[i] in ["true","false"] or self._tokens[i][0] in ('d','p'):
                 should_raise = False
 
-            if self._tokens[i][0] in ('i','p'):
+            if self._tokens[i][0] in ('d','p'):
                 self._inputs_set.add(self._tokens[i])
                 self._tokens_test[i] = 'True'
                 self._tokens[i] = f"bool({self._tokens[i]})"
