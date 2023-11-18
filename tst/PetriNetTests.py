@@ -246,32 +246,32 @@ class TimedTransitionTests(unittest.TestCase):
         self.assertTrue(transition.is_time_enabled())
 
     def test_is_time_enabled_timer_resets_after_signal_disabling(self):
-        io_handler =IOWebMocker(digital_inputs={"i0":False})
+        io_handler =IOWebMocker(digital_inputs={"di0":False})
         transition = TimedTransition(id="T0", priority=1, rate=1, timer_sec=0.03,
-                                     signal_enabling_expression="i0",
+                                     signal_enabling_expression="di0",
                                      io_handler=io_handler,
                                      BoolParserClass=BoolParser)
         self.assertTrue(transition.is_petri_enabled())
         self.assertFalse(transition.is_signal_enabled())
-        io_handler._digital_inputs["i0"] = True
+        io_handler._digital_inputs["di0"] = True
         self.assertTrue(transition.is_signal_enabled())
         self.assertFalse(transition.is_time_enabled())
         time.sleep(0.031)
         self.assertTrue(transition.is_time_enabled())
-        io_handler._digital_inputs["i0"] = False
+        io_handler._digital_inputs["di0"] = False
         self.assertFalse(transition.is_signal_enabled())
         self.assertFalse(transition.is_time_enabled())
 
-        io_handler._digital_inputs["i0"] = True
+        io_handler._digital_inputs["di0"] = True
         self.assertTrue(transition.is_signal_enabled())
         self.assertFalse(transition.is_time_enabled())
         time.sleep(0.015)
 
-        io_handler._digital_inputs["i0"] = False
+        io_handler._digital_inputs["di0"] = False
         self.assertFalse(transition.is_signal_enabled())
         self.assertFalse(transition.is_time_enabled())
 
-        io_handler._digital_inputs["i0"] = True
+        io_handler._digital_inputs["di0"] = True
         self.assertTrue(transition.is_signal_enabled())
         self.assertFalse(transition.is_time_enabled())
         time.sleep(0.025)
@@ -384,9 +384,9 @@ class TransitionsCollectionTests(unittest.TestCase):
 
     def test_get_transition_chosen_to_fire_instantaneous_transitions_has_total_preference_over_timed_transitions(self):
         p0 = Place("P0",capacity=1,marking=1)
-        self.io_handler =IOWebMocker(digital_inputs={"i0":False})
+        self.io_handler =IOWebMocker(digital_inputs={"di0":False})
         instantaneous_transition = InstantaneousTransition("t0",rate=1,priority=2,
-                                                           signal_enabling_expression="i0",
+                                                           signal_enabling_expression="di0",
                                                            io_handler=self.io_handler,
                                                            BoolParserClass= BoolParser)
         timed_transition = TimedTransition("t1",rate=1,priority=1,timer_sec=0.03)
@@ -410,7 +410,7 @@ class TransitionsCollectionTests(unittest.TestCase):
         # because there is some instantaneous transition petri enabled
         
         self.assertIs(transitions_collection.get_transition_chosen_to_fire(),None)
-        self.io_handler._digital_inputs["i0"] = True
+        self.io_handler._digital_inputs["di0"] = True
         self.assertTrue(instantaneous_transition.is_signal_enabled())
         self.assertIs(transitions_collection.get_transition_chosen_to_fire(),instantaneous_transition)
 
@@ -472,7 +472,7 @@ class PetriNetTests(unittest.TestCase):
         self.assertEqual(io_handler._digital_outputs['o0'],False)
     
     def test_timed_transitions_01(self):
-        io_handler = IOWebMocker(digital_inputs={"i0":False,"i1":False},digital_outputs={'o0':False,'o1':False})
+        io_handler = IOWebMocker(digital_inputs={"di0":False,"di1":False},digital_outputs={'do0':False,'do1':False})
         petri_net_handler = PetriNetHandler(
             io_handler,
             BoolParser
@@ -495,7 +495,7 @@ class PetriNetTests(unittest.TestCase):
                 "id": "T0",
                 "rate": 1,
                 "priority": 1,
-                "signal_enabling_expression": "i0"
+                "signal_enabling_expression": "di0"
                 }
             ],
             "timed_transitions": [
@@ -503,7 +503,7 @@ class PetriNetTests(unittest.TestCase):
                 "id": "T1",
                 "rate": 1,
                 "priority": 1,
-                "signal_enabling_expression": "i1",
+                "signal_enabling_expression": "di1",
                 "timer_sec": 1
                 }
             ],
@@ -538,14 +538,14 @@ class PetriNetTests(unittest.TestCase):
                 }
             ],
             "marking_to_output_expressions": {
-                "o0": "P0",
-                "o1": "P1",
-                "o2": "false",
-                "o3": "false",
-                "o4": "false",
-                "o5": "false",
-                "o6": "false",
-                "o7": "false"
+                "do0": "P0",
+                "do1": "P1",
+                "do2": "false",
+                "do3": "false",
+                "do4": "false",
+                "do5": "false",
+                "do6": "false",
+                "do7": "false"
             }
         }
         
@@ -560,7 +560,7 @@ class PetriNetTests(unittest.TestCase):
         self.assertEqual(markings,{"P0":1,"P1":0})
 
 
-        io_handler._digital_inputs["i0"] = True
+        io_handler._digital_inputs["di0"] = True
        
 
         petri_net_handler._step()
@@ -568,7 +568,7 @@ class PetriNetTests(unittest.TestCase):
         self.assertEqual(markings,{"P0":0,"P1":1})
 
         
-        io_handler._digital_inputs={"i0":False,"i1":True}
+        io_handler._digital_inputs={"di0":False,"di1":True}
         petri_net_handler._step()
         markings = {place.id:place.marking for place in petri_net_handler._places.values()}
         self.assertEqual(markings,{"P0":0,"P1":1})
@@ -580,12 +580,12 @@ class PetriNetTests(unittest.TestCase):
         self.assertEqual(markings,{"P0":0,"P1":1})
 
         
-        io_handler._digital_inputs["i1"] = False
+        io_handler._digital_inputs["di1"] = False
         petri_net_handler._step()
         markings = {place.id:place.marking for place in petri_net_handler._places.values()}
         self.assertEqual(markings,{"P0":0,"P1":1})
 
-        io_handler._digital_inputs["i1"] = True
+        io_handler._digital_inputs["di1"] = True
         petri_net_handler._step()
         markings = {place.id:place.marking for place in petri_net_handler._places.values()}
         self.assertEqual(markings,{"P0":0,"P1":1})

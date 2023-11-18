@@ -5,17 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Emulador de IOs</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">        
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
-        
 
     <style>
       .led {
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 2em;
-        height: 2em;
+        justify-content: center;
+        width: 3em;
+        height: 3em;
+        margin: 5px 0;
         border-radius: 2em 2em 2em 2em;
         border: 1px solid lightgray;
         background-image: linear-gradient(
@@ -73,71 +79,83 @@
     </style>
 
     <script>
-        $(document).ready(function (){
-            var socket_main_server = io.connect('http://' + document.domain + ':50000');
-            var socket_io_mocker = io.connect('http://' + document.domain + ':50001');
+      $(document).ready(function (){
+        var socket_main_server = io.connect('http://' + document.domain + ':50000');
+        var socket_io_mocker = io.connect('http://' + document.domain + ':50001');
             
-            
-            socket_main_server.on('IO_update', function(new_IO_state) {
-                console.group("IO_update")
-                console.log(new_IO_state)
-                console.groupEnd()
-                
-                for (const [key, value] of Object.entries(new_IO_state["digital_inputs"])) {
-                    $('#' + key).attr('class', value ? 'input_led led green' : 'input_led led red');
-                }
-                for (const [key, value] of Object.entries(new_IO_state["digital_outputs"])) {
-                    $('#' + key).attr('class', value ? 'led green' : 'led red');
-                }
-            });
 
-            $('.input_led').click(function(){
-                let new_state = !($(this).hasClass("green"))
-                let id = $(this).attr('id')
-                input_update = {}
-                input_update[id] = new_state
-                socket_io_mocker.emit("input_update",input_update)
+        socket_main_server.on("IO_update", function (new_IO_state) {
+          console.group("IO_update");
+          console.log(new_IO_state);
+          console.groupEnd();
 
+          for (const [key, value] of Object.entries(
+            new_IO_state["digital_inputs"]
+          )) {
+            $("#" + key).attr(
+              "class",
+              value ? "input_led led green" : "input_led led red"
+            );
+          }
+          for (const [key, value] of Object.entries(
+            new_IO_state["digital_outputs"]
+          )) {
+            $("#" + key).attr("class", value ? "led green" : "led red");
+          }
+        });
 
-                $(this).removeClass(new_state?"red":"green")
-                $(this).addClass(new_state?"green":"red")
+        $(".input_led").click(function () {
+          let new_state = !$(this).hasClass("green");
+          let id = $(this).attr("id");
+          input_update = {};
+          input_update[id] = new_state;
+          socket_io_mocker.emit("input_update", input_update);
 
+          $(this).removeClass(new_state ? "red" : "green");
+          $(this).addClass(new_state ? "green" : "red");
 
-                console.log(input_update)
-            });
-        })
+          console.log(input_update);
+        });
+      });
     </script>
   </head>
   <body>
-    <div
-      id="IO_monitor"
-      class="m-2 border justify-content-center rounded l1"
-    >
+    <div id="IO_monitor" class="m-2 border justify-content-center rounded l1">
       <h2 class="text-center">Emulador de IOs</h2>
       <div class="m-2 p-2 border rounded l2">
         <h6 class="text-center">Entradas</h6>
         <div class="d-flex flex-row justify-content-around rounded">
-          <div class="input_led led" id="i0">i0</div>
-          <div class="input_led led" id="i1">i1</div>
-          <div class="input_led led" id="i2">i2</div>
-          <div class="input_led led" id="i3">i3</div>
-          <div class="input_led led" id="i4">i4</div>
-          <div class="input_led led" id="i5">i5</div>
-          <div class="input_led led" id="i6">i6</div>
-          <div class="input_led led" id="i7">i7</div>
+          <div class="led input_led" id="DI0">DI0</div>
+          <div class="led input_led" id="DI1">DI1</div>
+          <div class="led input_led" id="DI2">DI2</div>
+          <div class="led input_led" id="DI3">DI3</div>
+          <div class="led input_led" id="DI4">DI4</div>
+          <div class="led input_led" id="DI5">DI5</div>
+          <div class="led input_led" id="DI6">DI6</div>
+          <div class="led input_led" id="DI7">DI7</div>
         </div>
       </div>
       <div class="m-2 p-2 border rounded l2">
         <h6 class="text-center">Saídas</h6>
         <div class="d-flex flex-row justify-content-around rounded">
-          <div class="led" id="o0">o0</div>
-          <div class="led" id="o1">o1</div>
-          <div class="led" id="o2">o2</div>
-          <div class="led" id="o3">o3</div>
-          <div class="led" id="o4">o4</div>
-          <div class="led" id="o5">o5</div>
-          <div class="led" id="o6">o6</div>
-          <div class="led" id="o7">o7</div>
+          <div class="led" id="DO0">DO0</div>
+          <div class="led" id="DO1">DO1</div>
+          <div class="led" id="DO2">DO2</div>
+          <div class="led" id="DO3">DO3</div>
+          <div class="led" id="DO4">DO4</div>
+          <div class="led" id="DO5">DO5</div>
+          <div class="led" id="DO6">DO6</div>
+          <div class="led" id="DO7">DO7</div>
+        </div>
+        <div class="d-flex flex-row justify-content-around rounded">
+          <div class="led" id="DO8">DO8</div>
+          <div class="led" id="DO9">DO9</div>
+          <div class="led" id="DO10">DO10</div>
+          <div class="led" id="DO11">DO11</div>
+          <div class="led" id="DO12">DO12</div>
+          <div class="led" id="DO13">DO13</div>
+          <div class="led" id="DO14">DO14</div>
+          <div class="led" id="DO15">DO15</div>
         </div>
       </div>
     </div>

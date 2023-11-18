@@ -13,8 +13,8 @@ try:
     # print("https://example.com/")
     webserver_handler = LocalWebServer()
     io_handler= IOWebMocker(
-        digital_inputs= {f"i{i}":False for i in range(8)},
-        digital_outputs={f"o{i}":False for i in range(8)},
+        digital_inputs= {f"DI{i}":False for i in range(8)},
+        digital_outputs={f"DO{i}":False for i in range(16)},
         web_mock=True
     )
     petrinet_handler = PetriNetHandler(io_handler,BoolParser)

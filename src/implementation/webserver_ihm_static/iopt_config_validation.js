@@ -1,43 +1,63 @@
-function is_valid_expression(expression,extra_tokens){
-    const valid_tokens = [...extra_tokens,'(',')','|','&','^','!','true','false'];
-    s1 = expression.split(' ').join("");
-    tmp_tokens = [];
-    tmp_tokens_bool_substitution = []
-    back_pointer = 0;
-    front_pointer = 0;
-    while (front_pointer <= s1.length) {
-        let substring = s1.substring(back_pointer,front_pointer);
-        if (valid_tokens.includes(substring)) {
-            tmp_tokens.push(substring)
-            back_pointer = front_pointer;
-
-            if (extra_tokens.includes(substring)){
-                tmp_tokens_bool_substitution.push("true")
-            }else{
-                tmp_tokens_bool_substitution.push(substring)
-            }
-
-        }else{
-            front_pointer = front_pointer + 1;
-        }
+function is_valid_expression( //--> list[str]
+    expression, // str
+    extra_tokens // list[str]
+){
+    expression = expression.replaceAll(" ","");
+    if (expression === ""){
+        return [false,""]
     }
-    s2 = tmp_tokens.join("")
-    const contains_only_valid_tokens = s1 == s2
-    const final_expression = tmp_tokens.join(" ")
-    const proxy_expression_for_validation = tmp_tokens_bool_substitution.join(" ")
+    // let expression_lower = expression.toLowerCase();
     
-    if (contains_only_valid_tokens){
-        try{
-            eval(!(!(eval(proxy_expression_for_validation)))) 
+    let extra_tokens_lower = extra_tokens.map(token=>token.toLowerCase());
 
-            return [true,final_expression]
+    const basic_tokens = ['(',')','|','&','^','!','true','false'];
+    const valid_tokens = [...extra_tokens,...basic_tokens];
+    let p0=0,p1=0;
+    const tokens = [];
+    const tokens_bool_substitution = []; //tokens, with all variables changed to true. It will be used as a proxy for validation
+    let token_tmp = null;
+
+    while (p0 <= p1 && p1 <= expression.length) {
+        let substring = expression.substring(p0,p1);
+        let substring_lower = substring.toLowerCase()
+        if (basic_tokens.includes(substring_lower)){
+            tokens.push(substring);
+            tokens_bool_substitution.push(substring_lower);
+            p0 = p1;
+            continue;
+        }else if ( (substring_lower.startsWith('di')||substring_lower.startsWith('p'))  && extra_tokens_lower.includes(substring_lower)){
+            token_tmp = substring;
+        }else if ( (substring_lower.startsWith('di')||substring_lower.startsWith('p')   && ! extra_tokens_lower.includes(substring_lower))){
+            if (token_tmp !== null){
+                tokens.push(token_tmp);
+                tokens_bool_substitution.push('true');
+                token_tmp = null;
+                p0 = p1= p1-1;
+                continue;
+            }
         }
-        catch (e){
-            console.log("Invalid boolean expression")
-            console.log(e); // Logs the error            
-            return [false,""]
-        }
-    }else{
+
+        p1 += 1;
+    }
+
+    if (token_tmp !== null){
+        tokens.push(token_tmp);
+        tokens_bool_substitution.push('true');
+    }
+
+    if (tokens.join("") !== expression){
+        // return tokens;
+        return [false,""];
+    }
+    const final_expression = tokens.join(" ") + " ";
+    const proxy_expression_for_validation = tokens_bool_substitution.join(" ");
+    try{
+        eval(!(!(eval(proxy_expression_for_validation)))) 
+        return [true,final_expression]
+    }
+    catch (e){
+        console.log("Invalid boolean expression")
+        console.log(e); // Logs the error            
         return [false,""]
     }
 }
@@ -47,21 +67,20 @@ function  is_form_valid(IOPT_dictionary){
     const output_activation_condition_Container = document.getElementById("output_activation_condition_container");
     const timed_transition_timer_Container = document.getElementById("timed_transition_timer_container");
     
-    const transition_signal_enabling_condition = {}
-    const marking_to_output_expressions = {}
-    const timed_condition_timer = {}
+    const transition_signal_enabling_condition = {};
+    const marking_to_output_expressions = {};
+    const timed_condition_timer = {};
 
     // Loop through the children
-    extra_tokens = ["i0","i1","i2","i3","i4","i5","i6","i7",]
-    for (let i = 0; i < transition_signal_enabling_condition_Container.children.length; i++) {
-        const child = transition_signal_enabling_condition_Container.children[i];
-        const label = child.querySelector(".form-label");
-        const input = child.querySelector(".transition_signal_enabling_condition_textfield");
+    extra_tokens = [...Array(8).keys()].map(i => `DI${i}`)
+    for (const row of transition_signal_enabling_condition_Container.children){
+        const label = row.querySelector(".form-label");
+        const input = row.querySelector(".transition_signal_enabling_condition_textfield");
         const [valid_expression_bool,new_string] = is_valid_expression(input.value,extra_tokens)
         if (!(valid_expression_bool && new_string != "")){
             return false
         }else{
-            transition_signal_enabling_condition[label.textContent] = input.value
+            transition_signal_enabling_condition[label.textContent] = input.value;
         }
     }
 
