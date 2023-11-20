@@ -48,7 +48,9 @@ class StateMachine(AbstractStateMachine):
                 WebServerEvents.petriNetFilesUploaded:      (S.PetriNetFilesUploaded        , A.DoNothing),
             },
             S.PetriNetFilesUploaded:{
-                WebServerEvents.startExecution:             (S.Running                      , A.StartExecution)
+                WebServerEvents.startExecution:             (S.Running                      , A.StartExecution),
+                WebServerEvents.physicalIOHandlerSelected:  (S.PetriNetFilesUploaded       , A.PhysicalIOHandlerSelected),
+                WebServerEvents.emulatorIOHandlerSelected:  (S.PetriNetFilesUploaded       , A.EmulatorIOHandlerSelected),
             },
             S.Running: {
                 PetriNetEvents.deadLock:                    (S.DeadLock                     , A.DoNothing),
@@ -116,6 +118,12 @@ class StateMachine(AbstractStateMachine):
             self._petrinet_handler.running_flag = False
             self._io_handler.clear()
 
+        def exec_PhysicalIOHandlerSelected():
+            self._io_handler.select_io_handler_physical()
+
+        def exec_EmulatorIOHandlerSelected():
+            self._io_handler.select_io_handler_emulator()
+            
             
 
         Actions = StateMachine.Actions
@@ -125,7 +133,10 @@ class StateMachine(AbstractStateMachine):
             Actions.StartExecution:  exec_PetriNetStart,
             Actions.PauseExecution:  exec_PetriNetPause,
             Actions.ResumeExecution: exec_PetriNetResume,
-            Actions.FinishExecution: exec_PetriNetFinishExecution
+            Actions.FinishExecution: exec_PetriNetFinishExecution,
+            Actions.PhysicalIOHandlerSelected: exec_PhysicalIOHandlerSelected,
+            Actions.EmulatorIOHandlerSelected: exec_EmulatorIOHandlerSelected,
+
         }
 
         self._internal_event = switch_case_dict[action]() or StateMachine.InternalEvents.NONE

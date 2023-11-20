@@ -40,9 +40,14 @@ class PetriNetHandler(AbstractPetriNetHandler):
         self._places:dict[str,Place] = dict()
         transitions:dict[str,InstantaneousTransition|TimedTransition] = dict()
 
-        self._io_handler.set_marking_to_output_expressions(petri_net_json_structure["marking_to_output_expressions"],self._BoolParserClass)  
         for place in petri_net_json_structure["places"]:
             self._places[place["id"]] = Place(id=place["id"],capacity=place["capacity"],marking=place["initial_marking"])
+        self._BoolParserClass.set_valid_extra_tokens(
+            valid_input_tokens= list(self._io_handler.get_all()["digital_inputs"].keys()),
+            valid_place_tokens= list(self._places.keys())
+        )
+        self._io_handler.set_marking_to_output_expressions(petri_net_json_structure["marking_to_output_expressions"],self._BoolParserClass)  
+        
         for instantaneous_transition in petri_net_json_structure["instantaneous_transitions"]:
             transitions[instantaneous_transition["id"]] = InstantaneousTransition(
                 id = instantaneous_transition["id"],

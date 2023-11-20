@@ -20,7 +20,9 @@ class LocalWebServer(AbstractWebServerHandler):
             'btn-resume'    : LocalWebServer.Events.resumeExecution,
             'btn-finish'    : LocalWebServer.Events.finishExecutionAfterCycle,
             'btn-finish_now': LocalWebServer.Events.finishExecutionImmediately,
-            'FileUploaded'  : LocalWebServer.Events.petriNetFilesUploaded
+            'FileUploaded'  : LocalWebServer.Events.petriNetFilesUploaded,
+            'io_handler_physical':LocalWebServer.Events.physicalIOHandlerSelected,
+            'io_handler_emulator':LocalWebServer.Events.emulatorIOHandlerSelected
         }
         self._server_started = False
 

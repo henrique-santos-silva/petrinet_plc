@@ -39,6 +39,15 @@ $(document).ready(function (){
             "WaitingEndOfCycle",
             "DeadLock"
         ].includes(new_state) ? $("#new_file").hide() : $("#new_file").show()
+
+        let _is_io_module_disabled = new_state !== "PetriNetFilesUploaded";
+        $('#io-module-selector').prop('disabled',_is_io_module_disabled)
+        $('#io-module-selector').parent().toggleClass('disabled',_is_io_module_disabled)
+        if (_is_io_module_disabled) {
+            $('#io-module-selector').addClass('disabled');
+        } else {
+            $('#io-module-selector').removeClass('disabled');
+        }
         
         $("#IOPT_config").hide() 
 
@@ -62,11 +71,25 @@ $(document).ready(function (){
         }
     });
     
+
+
+    $('#io-module-selector').parent().on('change',function(){
+        if ($(this).hasClass('off')){
+            socket.emit("stateMachine_event_update",'io_handler_emulator')
+        }else{
+            socket.emit("stateMachine_event_update",'io_handler_physical')
+        }
+    })
+
+
     $('button').click(
         function(){
             const IOPT_dictionary = JSON.parse(localStorage.getItem("IOPT_dictionary"));
             if ($(this).attr('id') == "btn-try_to_send_iopt_config"){
+                console.log("if ($(this).attr('id') == 'btn-try_to_send_iopt_config')")
                 if(is_form_valid(IOPT_dictionary)){
+                    console.log("if(is_form_valid(IOPT_dictionary))")
+            
                     socket.emit('stateMachine_event_update','FileUploaded')
                     socket.emit("IOPT_update",JSON.stringify(IOPT_dictionary))
                     localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
@@ -102,7 +125,18 @@ $(document).ready(function (){
         petrinet_xml2json(file)
         .then((IOPT_dictionary) => {
             localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
-            generate_IOPT_config_div(IOPT_dictionary,loaded_from_json=false)
+            generate_IOPT_config_div(
+                IOPT_dictionary,
+                loaded_from_json = false,
+                inputs_name_list = [...Array(8).keys()].map(i => `DI${i}`),
+                outputs_name_list = [...Array(16).keys()].map(i => `DO${i}`),
+            )
+            
+            apply_popover_to_inputs(
+                inputs = [...Array(8).keys()].map(i => `DI${i}`),
+                places = IOPT_dictionary.places.map(place => place.id)
+            )
+
             console.log(IOPT_dictionary)
             $("#user_command_buttons").hide()
             $("#IO_monitor").hide()            
@@ -120,7 +154,17 @@ $(document).ready(function (){
         petrinet_load_json(file)
         .then((IOPT_dictionary) => {
             localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
-            generate_IOPT_config_div(IOPT_dictionary,loaded_from_json=true)
+            generate_IOPT_config_div(
+                IOPT_dictionary,
+                loaded_from_json = true,
+                inputs_name_list = [...Array(8).keys()].map(i => `DI${i}`),
+                outputs_name_list = [...Array(16).keys()].map(i => `DO${i}`),
+            )
+            
+            apply_popover_to_inputs(
+                inputs = [...Array(8).keys()].map(i => `DI${i}`),
+                places = IOPT_dictionary.places.map(place => place.id)
+            )
             console.log(IOPT_dictionary)
             $("#user_command_buttons").hide()
             $("#IO_monitor").hide()

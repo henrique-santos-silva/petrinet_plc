@@ -6,14 +6,21 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">        
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>        
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+
+        <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
         
         <script src="/static/index.js"></script> 
         <script src="/static/iopt_config_validation.js"></script> 
         <script src="/static/iopt_config_dom_generation.js"></script> 
+        <script src="/static/iopt_config_autocomplete.js"></script> 
 
         <link rel="stylesheet" href="/static/mystyle.css">
         
@@ -66,35 +73,67 @@
                 <h2 class ="text-center">Monitor de Sinais</h2>
                 <div class="m-2 p-2 border rounded l2">
                     <h6 class ="text-center">
+                        Seletor de Módulo de IOs
+                    </h6>
+                    <div class="checkbox d-flex flex-row justify-content-around rounded">
+                        <input id="io-module-selector" type="checkbox" checked data-toggle="toggle" data-on="IOs Fisícos" data-off="Emulador de IOs" data-onstyle="success" data-offstyle="danger"  data-width="200">
+                    </div>
+                </div>
+                <div class="m-2 p-2 border rounded l2">
+                    <h6 class ="text-center">
                         Entradas
                     </h6>
                     <div class="d-flex flex-row justify-content-around rounded">
-                        <div class ="led" id="i0">i0</div>
-                        <div class ="led" id="i1">i1</div>
-                        <div class ="led" id="i2">i2</div>
-                        <div class ="led" id="i3">i3</div>
-                        <div class ="led" id="i4">i4</div>
-                        <div class ="led" id="i5">i5</div>
-                        <div class ="led" id="i6">i6</div>
-                        <div class ="led" id="i7">i7</div>
+                        <div class ="led" id="DI0" >DI0</div>
+                        <div class ="led" id="DI1" >DI1</div>
+                        <div class ="led" id="DI2" >DI2</div>
+                        <div class ="led" id="DI3" >DI3</div>
+                        <div class ="led" id="DI4" >DI4</div>
+                        <div class ="led" id="DI5" >DI5</div>
+                        <div class ="led" id="DI6" >DI6</div>
+                        <div class ="led" id="DI7" >DI7</div>
+                        <!-- <div class ="led" id="DI8" >DI8</div>
+                        <div class ="led" id="DI9" >DI9</div>
+                        <div class ="led" id="DI10">DI10</div>
+                        <div class ="led" id="DI11">DI11</div>
+                        <div class ="led" id="DI12">DI12</div>
+                        <div class ="led" id="DI13">DI13</div>
+                        <div class ="led" id="DI14">DI14</div>
+                        <div class ="led" id="DI15">DI15</div> -->
                     </div>
                 </div>
                 <div class="m-2 p-2 border rounded l2">
                     <h6 class ="text-center">
                         Saídas
-                    </h6>
+                    </h6>                    
                     <div class="d-flex flex-row justify-content-around rounded">
-                        <div class ="led" id="o0">o0</div>
-                        <div class ="led" id="o1">o1</div>
-                        <div class ="led" id="o2">o2</div>
-                        <div class ="led" id="o3">o3</div>
-                        <div class ="led" id="o4">o4</div>
-                        <div class ="led" id="o5">o5</div>
-                        <div class ="led" id="o6">o6</div>
-                        <div class ="led" id="o7">o7</div>
+                        <div class ="led" id="DO0" >DO0</div>
+                        <div class ="led" id="DO1" >DO1</div>
+                        <div class ="led" id="DO2" >DO2</div>
+                        <div class ="led" id="DO3" >DO3</div>
+                        <div class ="led" id="DO4" >DO4</div>
+                        <div class ="led" id="DO5" >DO5</div>
+                        <div class ="led" id="DO6" >DO6</div>
+                        <div class ="led" id="DO7" >DO7</div>
+                            
                     </div>
+                    <div class="d-flex flex-row justify-content-around rounded">
+                        <div class ="led" id="DO8" >DO8</div>
+                        <div class ="led" id="DO9" >DO9</div>
+                        <div class ="led" id="DO10">DO10</div>
+                        <div class ="led" id="DO11">DO11</div>
+                        <div class ="led" id="DO12">DO12</div>
+                        <div class ="led" id="DO13">DO13</div>
+                        <div class ="led" id="DO14">DO14</div>
+                        <div class ="led" id="DO15">DO15</div>
+                    </div>    
                 </div>
-            </div>    
+            </div>
+            
+            <div id="autocomplete_content" style="display: none;">
+                <div class="list-group"> 
+                </div>
+            </div>
 
             <div id="user_command_buttons" class="m-2 border rounded l1" style="display: none;">
                 <h2 class ="text-center">Comandos do Usuário</h2>

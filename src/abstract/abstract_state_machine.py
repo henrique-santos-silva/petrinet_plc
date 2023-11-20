@@ -28,6 +28,9 @@ class AbstractStateMachine(ABC):
         ResumeExecution = auto()
         FinishExecution = auto()
 
+        PhysicalIOHandlerSelected = auto()
+        EmulatorIOHandlerSelected = auto()
+
     @abstractmethod
     def run(self):
         raise NotImplementedError
