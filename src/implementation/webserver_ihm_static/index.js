@@ -39,6 +39,15 @@ $(document).ready(function (){
             "WaitingEndOfCycle",
             "DeadLock"
         ].includes(new_state) ? $("#new_file").hide() : $("#new_file").show()
+
+        let _is_io_module_disabled = new_state !== "PetriNetFilesUploaded";
+        $('#io-module-selector').prop('disabled',_is_io_module_disabled)
+        $('#io-module-selector').parent().toggleClass('disabled',_is_io_module_disabled)
+        if (_is_io_module_disabled) {
+            $('#io-module-selector').addClass('disabled');
+        } else {
+            $('#io-module-selector').removeClass('disabled');
+        }
         
         $("#IOPT_config").hide() 
 
@@ -62,6 +71,17 @@ $(document).ready(function (){
         }
     });
     
+
+
+    $('#io-module-selector').parent().on('change',function(){
+        if ($(this).hasClass('off')){
+            socket.emit("stateMachine_event_update",'io_handler_emulator')
+        }else{
+            socket.emit("stateMachine_event_update",'io_handler_physical')
+        }
+    })
+
+
     $('button').click(
         function(){
             const IOPT_dictionary = JSON.parse(localStorage.getItem("IOPT_dictionary"));

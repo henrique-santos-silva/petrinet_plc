@@ -9,6 +9,10 @@ class AbstractWebServerHandler(ABC):
         resumeExecution = auto()
         finishExecutionAfterCycle = auto()
         finishExecutionImmediately = auto()
+        physicalIOHandlerSelected = auto()
+        emulatorIOHandlerSelected = auto()
+
+
 
     @abstractmethod
     def set_event_callback(self,event_callback):
