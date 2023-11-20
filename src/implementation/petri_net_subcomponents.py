@@ -325,6 +325,7 @@ class TransitionsCollection(AbstractPetriNetTransitionsCollection):
             if not self._signal_enabled_timed_transitions.is_empty:
                 self._update_time_enabled_timed_transitions()
                 if not self._time_enabled_timed_transitions.is_empty:
+                    self._inner_state_function_get_transition_chosen_to_fire =enum_inner_states.CHECK_PETRI_ENABLING
                     return self._time_enabled_timed_transitions.choose_based_on_priority_and_rate()
         
         return None
