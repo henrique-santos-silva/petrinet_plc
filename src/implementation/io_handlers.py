@@ -22,8 +22,14 @@ class PDR0004_IOHandler(AbstractIOHandler):
         self._digital_outputs = {f"DO{i}":False for i in range(16)}
         self._digital_inputs  = {f"DI{i}":False for i in range(8)}
         self._previous_digital_inputs  =  deepcopy(self._digital_inputs)
+        self.enabled = True
 
-        self.bus = smbus.SMBus(1)
+        try:
+            self.bus = smbus.SMBus(1)
+            self.clear()
+            self.get_all()
+        except Exception as e:
+            self.enabled = False
 
 
     def _generate_bytes_from_bits(self,bits):
@@ -96,11 +102,13 @@ class PDR0004_IOHandler(AbstractIOHandler):
         
 
     def clear(self):
-        self._output_boolean_functions = None
-        for key in self._digital_outputs.keys():
-            self._digital_outputs[key] = False
-        self.bus.write_byte(self.PCF_ADDRESS_RELAYS, 0xFF)
-    
+        if self.enabled:
+            self._output_boolean_functions = None
+            for key in self._digital_outputs.keys():
+                self._digital_outputs[key] = False
+            self.bus.write_byte(self.PCF_ADDRESS_RELAYS, 0xFF)
+            self.bus.write_byte(self.PCF_ADDRESS_OPTO_ISOLATED_OUTPUTS,  0xFF) 
+                   
     def __del__(self):
         self.bus.write_byte(self.PCF_ADDRESS_RELAYS, 0xFF)
 
@@ -118,7 +126,7 @@ class IOHandlersWrapper(AbstractIOHandler):
     def __init__(self,io_handler_emulator:AbstractIOHandler,io_handler_physical:AbstractIOHandler) -> None:
         self._io_handler_emulator = io_handler_emulator
         self._io_handler_physical = io_handler_physical
-        self._io_handler = self._io_handler_physical
+        self.select_io_handler_physical()
     
     def select_io_handler_emulator(self):
         print("select_io_handler_emulator")
@@ -126,7 +134,12 @@ class IOHandlersWrapper(AbstractIOHandler):
 
     def select_io_handler_physical(self):
         print("select_io_handler_physical")
-        self._io_handler = self._io_handler_physical
+        if self._io_handler_physical.enabled:
+            self._io_handler = self._io_handler_physical
+        else:
+            self._io_handler = self._io_handler_emulator
+
+
 
     @property
     def has_been_updated(self) -> bool:
