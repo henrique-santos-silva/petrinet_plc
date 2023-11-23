@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><pnml>
+    <net id="Net-One" type="P/T net">
+        <token id="Default" enabled="true" red="0" green="0" blue="0"/>
+        <place id="P_IDLE">
+            <graphics>
+                <position x="180.0" y="300.0"/>
+            </graphics>
+            <name>
+                <value>P_IDLE</value>
+                <graphics>
+                    <offset x="-44.0" y="-12.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,1</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="P1_TRAVADA">
+            <graphics>
+                <position x="390.0" y="390.0"/>
+            </graphics>
+            <name>
+                <value>P1_TRAVADA</value>
+                <graphics>
+                    <offset x="53.0" y="-15.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="P2_TRAVADA">
+            <graphics>
+                <position x="390.0" y="180.0"/>
+            </graphics>
+            <name>
+                <value>P2_TRAVADA</value>
+                <graphics>
+                    <offset x="59.0" y="51.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <transition id="T_SP1_ABERTA">
+            <graphics>
+                <position x="285.0" y="180.0"/>
+            </graphics>
+            <name>
+                <value>T_SP1_ABERTA</value>
+                <graphics>
+                    <offset x="56.0" y="-9.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_SP1_FECHADA">
+            <graphics>
+                <position x="480.0" y="150.0"/>
+            </graphics>
+            <name>
+                <value>T_SP1_FECHADA</value>
+                <graphics>
+                    <offset x="72.0" y="52.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>true</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_SP2_ABERTA">
+            <graphics>
+                <position x="270.0" y="360.0"/>
+            </graphics>
+            <name>
+                <value>T_SP2_ABERTA</value>
+                <graphics>
+                    <offset x="59.0" y="53.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_SP2_FECHADA">
+            <graphics>
+                <position x="465.0" y="405.0"/>
+            </graphics>
+            <name>
+                <value>T_SP2_FECHADA</value>
+                <graphics>
+                    <offset x="95.0" y="-20.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>true</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <arc id="P0 to T0" source="P_IDLE" target="T_SP2_ABERTA">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="204" y="320" curvePoint="false"/>
+            <arcpath id="001" x="276" y="372" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="P0 to T1" source="P_IDLE" target="T_SP1_ABERTA">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="201" y="300" curvePoint="false"/>
+            <arcpath id="001" x="291" y="192" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="P1 to T3" source="P2_TRAVADA" target="T_SP1_FECHADA">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="416" y="187" curvePoint="false"/>
+            <arcpath id="001" x="486" y="162" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="P2 to T2" source="P1_TRAVADA" target="T_SP2_FECHADA">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="416" y="405" curvePoint="false"/>
+            <arcpath id="001" x="471" y="417" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="T0 to P2" source="T_SP2_ABERTA" target="P1_TRAVADA">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="286" y="372" curvePoint="false"/>
+            <arcpath id="001" x="387" y="398" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="T1 to P1" source="T_SP1_ABERTA" target="P2_TRAVADA">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="301" y="192" curvePoint="false"/>
+            <arcpath id="001" x="387" y="192" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="T2 to P0" source="T_SP2_FECHADA" target="P_IDLE">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="477" y="432" curvePoint="false"/>
+            <arcpath id="001" x="478" y="508" curvePoint="false"/>
+            <arcpath id="002" x="178" y="493" curvePoint="false"/>
+            <arcpath id="003" x="190" y="326" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="T3 to P0" source="T_SP1_FECHADA" target="P_IDLE">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="492" y="147" curvePoint="false"/>
+            <arcpath id="001" x="493" y="88" curvePoint="false"/>
+            <arcpath id="002" x="178" y="88" curvePoint="false"/>
+            <arcpath id="003" x="191" y="297" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+    </net>
+</pnml>

@@ -1,0 +1,4 @@
+venv/
+webserver_ihm_uploaded_IOPT/
+__pycache__/
+petrinetplcerror.log
