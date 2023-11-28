@@ -25,7 +25,7 @@ Petri net-based Programmable Logic Controller
    source venv/bin/activate
 4. **Install Project Dependencies:**
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements_linux.txt
 ### Windows
 1. **Remove Existing Virtual Environment (if any):**
     ```   
@@ -41,7 +41,7 @@ Petri net-based Programmable Logic Controller
     venv\Scripts\activate
 4. **Install Project Dependencies:**
    ```
-   pip install -r requirements.txt
+   pip install -r requirements_windows.txt
 
 ## Running
 1. **run the run.py script**

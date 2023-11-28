@@ -8,7 +8,6 @@ from flask import Flask,send_from_directory
 from src.abstract.abstract_io_handler import AbstractIOHandler
 from src.abstract.abstract_bool_parser import AbstractBoolParser
 from src.abstract.abstract_petri_net_subcomponents import AbstractPetriNetPlace
-import smbus
 
 
 class PDR0004_IOHandler(AbstractIOHandler):
@@ -25,6 +24,7 @@ class PDR0004_IOHandler(AbstractIOHandler):
         self.enabled = True
 
         try:
+            import smbus
             self.bus = smbus.SMBus(1)
             self.clear()
             self.get_all()
