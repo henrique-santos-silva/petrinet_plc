@@ -129,11 +129,9 @@ class IOHandlersWrapper(AbstractIOHandler):
         self.select_io_handler_physical()
     
     def select_io_handler_emulator(self):
-        print("select_io_handler_emulator")
         self._io_handler = self._io_handler_emulator
 
     def select_io_handler_physical(self):
-        print("select_io_handler_physical")
         if self._io_handler_physical.enabled:
             self._io_handler = self._io_handler_physical
         else:

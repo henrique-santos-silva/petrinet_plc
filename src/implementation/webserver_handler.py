@@ -29,6 +29,9 @@ class LocalWebServer(AbstractWebServerHandler):
         self._current_state = None
         self._current_io = None
         self._event_callback = None
+        
+        self._is_physical_io_module = True
+        self._is_physical_io_module_enabled = True
 
         webserver_ihm_uploaded_IOPT_path = os.path.join(BASE_DIR, "webserver_ihm_uploaded_IOPT") 
         if not os.path.exists(webserver_ihm_uploaded_IOPT_path):
@@ -56,6 +59,20 @@ class LocalWebServer(AbstractWebServerHandler):
         if not(IOs == self._current_io):
             self._current_io = deepcopy(IOs)
             self._socketio.emit("IO_update",IOs)
+    
+    def post_current_io_module(self,is_physical:bool=None,is_physical_enabled:bool=None):
+        if is_physical is not None:
+            self._is_physical_io_module = is_physical
+        if is_physical_enabled is not None:
+            self._is_physical_io_module_enabled = is_physical_enabled
+
+        self._socketio.emit(
+            "io_module_selected",
+            {
+                "is_physical_io_module":self._is_physical_io_module,
+                "is_physical_io_module_enabled":self._is_physical_io_module_enabled
+            }
+        )
 
     def post_state(self,state:AbstractStateMachine.States):
         if state != self._current_state:
@@ -82,7 +99,8 @@ class LocalWebServer(AbstractWebServerHandler):
                 if self._current_state is not None:
                     emit("stateMachine_state_update",self._current_state.name)
                 if self._current_io is not None:
-                    emit("IO_update",self._current_io) 
+                    emit("IO_update",self._current_io)
+                self.post_current_io_module()
                 
             @socketio.on("IOPT_update")
             def IOPT_update(new_IOPT):
