@@ -97,6 +97,7 @@ class StateMachine(AbstractStateMachine):
     def _exec_action(self,action:AbstractStateMachine.Actions) -> None:
 
         def exec_CheckPetriNetFilesExistence():
+            self._webserver_handler.post_current_io_module(self._io_handler._io_handler_physical.enabled,self._io_handler._io_handler_physical.enabled)
             if self._webserver_handler.check_petri_net_files_existence():
                 return StateMachine.InternalEvents.filesAlreadyUploaded
             else:
@@ -120,9 +121,12 @@ class StateMachine(AbstractStateMachine):
 
         def exec_PhysicalIOHandlerSelected():
             self._io_handler.select_io_handler_physical()
+            self._webserver_handler.post_current_io_module(self._io_handler._io_handler_physical.enabled,self._io_handler._io_handler_physical.enabled)
 
         def exec_EmulatorIOHandlerSelected():
             self._io_handler.select_io_handler_emulator()
+            self._webserver_handler.post_current_io_module(False,self._io_handler._io_handler_physical.enabled)
+
             
             
 
