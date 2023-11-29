@@ -106,9 +106,28 @@ function apply_popover_to_inputs(
             current_text = $(this).val()
             new_text = generate_text_after_suggestion_accepted(current_text =current_text,accepted_word=activeItem.text())
             $(this).val(new_text)
+            $(this).trigger("change")
             console.log(new_text)
         } 
 
+    }).on('change', function() {
+        let extra_tokens = null;
+        if ($(this).hasClass('transition_signal_enabling_condition_textfield')) {
+            extra_tokens = inputs;
+        } else if ($(this).hasClass('output_activation_condition_textfield')) {
+            extra_tokens = places;
+        }
+
+
+        let valid_expression_bool;
+        let new_string; 
+        [valid_expression_bool, new_string] = is_valid_expression($(this).val(), extra_tokens);
+        if (valid_expression_bool && new_string != ""){
+            $(this).removeClass('border border-danger');
+            $(this).val(new_string);
+        } else {
+            $(this).addClass('border border-danger');
+        }
     });
 
     $(document).on('click', '.list-group-item-action', function(e) {
@@ -116,6 +135,7 @@ function apply_popover_to_inputs(
         let text = $(this).text();
         let newText = generate_text_after_suggestion_accepted(activeInputField.val(), text);
         activeInputField.val(newText).popover('hide');
+        activeInputField.trigger("change");
     });
 }
 
