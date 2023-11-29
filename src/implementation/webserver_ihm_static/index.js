@@ -69,8 +69,25 @@ $(document).ready(function (){
         if (new_state == "DeadLock"){
             alert("A Rede de Petri está em Deadlock! Finalize a execução e revise a RdP")
         }
+
+        $("#petrinet_xml_file").val('')
+        $("#petrinet_json_file").val('')
     });
     
+    socket.on('io_module_selected', function(data) {
+        console.log(data)
+        if (data.is_physical_io_module){
+            $('#io-module-selector').parent().removeClass('off'); // physical io module selected
+        }else{
+            $('#io-module-selector').parent().addClass('off'); // io emulator selected
+        }
+
+        if ( !data.is_physical_io_module_enabled){
+            console.log(true)
+            $('#io-module-selector').prop('disabled',true);
+            $('#io-module-selector').parent().toggleClass('disabled',true)      
+        }
+    });
 
 
     $('#io-module-selector').parent().on('change',function(){

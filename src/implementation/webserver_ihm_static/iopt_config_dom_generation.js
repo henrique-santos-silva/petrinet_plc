@@ -140,9 +140,9 @@ function generate_IOPT_config_div(
       input.setAttribute('name', `timed_transition_timer-${transitionName}`);
       input.setAttribute('id', `timed_transition_timer-${transitionName}`);
       input.setAttribute('required', true);
-      input.value = loaded_from_json ? transition["timer_sec"] : 0.00;
+      input.value = loaded_from_json ? transition["timer_sec"] : 0.01;
       input.addEventListener("change", function () {
-        this.value = Math.max(0.00, parseFloat(this.value));
+        this.value = Math.max(0.01, parseFloat(this.value));
       });
       inputCol.appendChild(input);
 
@@ -200,18 +200,6 @@ function generate_transition_signal_enabling_condition_container(
         input.setAttribute('id', `transition_signal_enabling_condition-${transitionName}`); 
         input.setAttribute('autocomplete', `off`); 
 
-        input.addEventListener("change", function(){
-          const extra_tokens = inputs_name_list
-          let valid_expression_bool;
-          let new_string; 
-          [valid_expression_bool,new_string] = is_valid_expression($(this).val(),extra_tokens);
-          if (valid_expression_bool && new_string != ""){
-              $(this).attr('class','form-control transition_signal_enabling_condition_textfield');
-              $(this).val(new_string);
-          } else {
-              $(this).attr('class','form-control transition_signal_enabling_condition_textfield border border-danger');
-          }
-        });
 
         if (loaded_from_json){
           input.value = transition["signal_enabling_expression"];
@@ -262,20 +250,7 @@ function generate_output_activation_condition_container(
         input.classList.add('output_activation_condition_textfield'); // Usando 'form-control' para estilização do Bootstrap
         input.setAttribute('name', `output_activation_condition-${output_name}`);
         input.setAttribute('id', `output_activation_condition-${output_name}`);
-        input.addEventListener("change", function(){
-        
-          let extra_tokens = IOPT_dictionary["places"].map(function(place){return place["id"]})
-          let valid_expression_bool;
-          let new_string; 
-          [valid_expression_bool,new_string] = is_valid_expression($(this).val(),extra_tokens)
-          if (valid_expression_bool && new_string != ""){
-            $(this).attr('class','form-control output_activation_condition_textfield')
-            $(this).val(new_string)
-          } else {
-            $(this).attr('class','form-control output_activation_condition_textfield border border-danger')
-          }
-        });
-        
+
         if (loaded_from_json){
           input.value=IOPT_dictionary["marking_to_output_expressions"][output_name]
           const event = new Event('change');

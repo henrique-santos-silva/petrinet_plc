@@ -1,3 +1,6 @@
+var activeInputField = null;
+
+
 function get_autocomplete_suggestions( // return list[str]
     input_text, //str
     extra_tokens //list[str]
@@ -12,7 +15,7 @@ function get_autocomplete_suggestions( // return list[str]
 function update_autocomplete_content( // returns None
     suggestions //list[str]
 ){
-    var listGroup = $('#autocomplete_content .list-group');
+    let listGroup = $('#autocomplete_content .list-group');
     listGroup.empty(); // Clear any existing list items
     suggestions.forEach(function(suggestions) {
         console.log("loop")
@@ -23,14 +26,14 @@ function update_autocomplete_content( // returns None
 }
 
 function navigate_autocomplete_content_list(direction) {
-    var listItems = $('.popover-body .list-group-item-action');
+    let listItems = $('.popover-body .list-group-item-action');
     
     // var listItems = $('#autocomplete_content .list-group .list-group-item-action');
 
-    var activeItem = listItems.filter('.active');
-    var currentIndex = listItems.index(activeItem);
+    let activeItem = listItems.filter('.active');
+    let currentIndex = listItems.index(activeItem);
     console.log(currentIndex)
-    var nextItem = direction === 'down' ? listItems.eq((currentIndex + 1)%listItems.length) : listItems.eq((currentIndex - 1)%listItems.length);
+    let nextItem = direction === 'down' ? listItems.eq((currentIndex + 1)%listItems.length) : listItems.eq((currentIndex - 1)%listItems.length);
 
     if (nextItem.length) {
         console.log("updating")
@@ -56,7 +59,7 @@ function generate_text_after_suggestion_accepted(
     current_text,//str
     accepted_word//str
 ){
-    words = current_text.split(" ");
+    let words = current_text.split(" ");
     // Remove a última palavra
     words.pop();
     // Adiciona a palavra aceita ao final do array
@@ -79,13 +82,14 @@ function apply_popover_to_inputs(
             return $('#autocomplete_content').html();
         }
     }).on('focus input', function() {
+        activeInputField = $(this);
         // var _this = this;
         if ($(this).hasClass('transition_signal_enabling_condition_textfield')) {
             extra_tokens = inputs;
         } else if ($(this).hasClass('output_activation_condition_textfield')) {
             extra_tokens = places;
         }
-        suggestions = get_autocomplete_suggestions($(this).val(),extra_tokens)
+        let suggestions = get_autocomplete_suggestions($(this).val(),extra_tokens)
         update_autocomplete_content(suggestions)
         $('#autocomplete_content .list-group .list-group-item-action').first().addClass('active');
         $(this).popover('show');
@@ -102,16 +106,36 @@ function apply_popover_to_inputs(
             current_text = $(this).val()
             new_text = generate_text_after_suggestion_accepted(current_text =current_text,accepted_word=activeItem.text())
             $(this).val(new_text)
-            
+            $(this).trigger("change")
             console.log(new_text)
         } 
 
+    }).on('change', function() {
+        let extra_tokens = null;
+        if ($(this).hasClass('transition_signal_enabling_condition_textfield')) {
+            extra_tokens = inputs;
+        } else if ($(this).hasClass('output_activation_condition_textfield')) {
+            extra_tokens = places;
+        }
+
+
+        let valid_expression_bool;
+        let new_string; 
+        [valid_expression_bool, new_string] = is_valid_expression($(this).val(), extra_tokens);
+        if (valid_expression_bool && new_string != ""){
+            $(this).removeClass('border border-danger');
+            $(this).val(new_string);
+        } else {
+            $(this).addClass('border border-danger');
+        }
     });
 
     $(document).on('click', '.list-group-item-action', function(e) {
         e.preventDefault();
-        var text = $(this).text();
-        $('.popover-input').filter(':focus').val(text).popover('hide');
+        let text = $(this).text();
+        let newText = generate_text_after_suggestion_accepted(activeInputField.val(), text);
+        activeInputField.val(newText).popover('hide');
+        activeInputField.trigger("change");
     });
 }
 
