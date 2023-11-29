@@ -69,6 +69,9 @@ $(document).ready(function (){
         if (new_state == "DeadLock"){
             alert("A Rede de Petri está em Deadlock! Finalize a execução e revise a RdP")
         }
+
+        $("#petrinet_xml_file").val('')
+        $("#petrinet_json_file").val('')
     });
     
     socket.on('io_module_selected', function(data) {
