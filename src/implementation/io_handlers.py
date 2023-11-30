@@ -90,7 +90,7 @@ class PDR0004_IOHandler(AbstractIOHandler):
         for output, output_bool_function in self._output_boolean_functions.items():
             self._digital_outputs[output] = output_bool_function(**places_bool)
         
-        relay_output_byte,opto_isolated_output_byte = self._generate_bytes_from_bits([not bit for bit in self._digital_outputs.values()])
+        opto_isolated_output_byte, relay_output_byte = self._generate_bytes_from_bits([not bit for bit in self._digital_outputs.values()])
         self.bus.write_byte(self.PCF_ADDRESS_RELAYS,                 relay_output_byte)
         self.bus.write_byte(self.PCF_ADDRESS_OPTO_ISOLATED_OUTPUTS,  opto_isolated_output_byte)    
 
@@ -117,9 +117,6 @@ class PDR0004_IOHandler(AbstractIOHandler):
     def get_all(self):
         self._update_inputs()
         return {"digital_inputs":self._digital_inputs,"digital_outputs":self._digital_outputs}
-
-    
-
 
 
 class IOHandlersWrapper(AbstractIOHandler):
