@@ -13,6 +13,29 @@ class Label {
         this.position = position; // Position should be an instance of Position
     }
     
+    // Method to draw the label on the canvas
+    draw(ctx) {
+        // Set the font to measure the text
+        ctx.font = '9px Arial';
+
+        // Measure the text to calculate the dimensions of the background rectangle
+        const textMeasure = ctx.measureText(this.text);
+        const padding = 0.2; // Extra space around the text
+        const backgroundWidth = textMeasure.width + padding * 2;
+        const backgroundHeight = parseInt(ctx.font, 10) + padding * 2;
+
+        // Calculate the starting x position to center the text and background rectangle
+        const startX = this.position.x - backgroundWidth / 2;
+        const startY = this.position.y - backgroundHeight / 2 + padding;
+
+        // Draw the background rectangle with 50% transparency
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // White with 50% transparency
+        ctx.fillRect(startX, startY, backgroundWidth, backgroundHeight);
+
+        // Draw the text centered
+        ctx.fillStyle = 'black'; // Text color
+        ctx.fillText(this.text, startX + padding, this.position.y);
+    }
 }
 
 // Class for transitions in a Petri net
