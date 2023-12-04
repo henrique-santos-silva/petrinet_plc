@@ -5,13 +5,14 @@ from enum import Enum,auto
 from collections.abc import Collection
 from src.abstract.abstract_io_handler import AbstractIOHandler
 from src.abstract.abstract_bool_parser import AbstractBoolParser
+from src.abstract.abstract_webserver_handler import AbstractWebServerHandler
 
 class AbstractPetriNetHandler(ABC):
 
     def __init__(self,
-                 petri_net_json_structure:dict,
                  io_handler:AbstractIOHandler,
-                 BoolParserClass:Type[AbstractBoolParser]
+                 BoolParserClass:Type[AbstractBoolParser],
+                 webserver_handler:AbstractWebServerHandler
     ) -> None:
         raise NotImplementedError
     

@@ -96,3 +96,6 @@ class AbstractPetriNetTransitionsCollection(ABC):
     def reset_timers(self) -> None:
         raise NotImplementedError
     
+    @abstractmethod
+    def __iter__(self):
+        raise NotImplementedError

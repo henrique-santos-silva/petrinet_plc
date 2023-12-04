@@ -23,7 +23,7 @@ try:
         io_handler_physical=io_handler_physical
     )
 
-    petrinet_handler = PetriNetHandler(io_handler,BoolParser)
+    petrinet_handler = PetriNetHandler(io_handler,BoolParser,webserver_handler)
 
     state_machine = StateMachine(
         petrinet_handler=petrinet_handler,
