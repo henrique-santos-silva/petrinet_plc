@@ -255,6 +255,7 @@ class TransitionsCollection(AbstractPetriNetTransitionsCollection):
                 io_handler:AbstractIOHandler) -> None:
         self._io_handler = io_handler
         self._inner_state_function_get_transition_chosen_to_fire = TransitionsCollection.InnerStateFunctionGetTransitionChosenToFire.CHECK_PETRI_ENABLING
+        self._transitions = transitions
 
         self._instantaneous_transitions = TransitionsCollection.TransitionsByPriority()
         self._timed_transitions =  TransitionsCollection.TransitionsByPriority()
@@ -274,6 +275,9 @@ class TransitionsCollection(AbstractPetriNetTransitionsCollection):
             else:
                 self._timed_transitions.append(transition)
     
+    def __iter__(self):
+        return iter(self._transitions)
+
     def __repr__(self) -> str:
         return f"""TransitionsCollection(
     instantaneous_transitions:               {self._instantaneous_transitions},

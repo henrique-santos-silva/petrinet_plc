@@ -1,3 +1,5 @@
+from src.abstract.abstract_state_machine import AbstractStateMachine
+from src.abstract.abstract_petri_net_subcomponents import AbstractPetriNetPlace, AbstractPetriNetTransitionsCollection,AbstractPetriNetTransition
 from abc import ABC,abstractmethod
 from enum import Enum, auto
 
@@ -31,5 +33,19 @@ class AbstractWebServerHandler(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def post_state(self,state):
+    def post_state(self,state:AbstractStateMachine.States):
         raise NotImplementedError
+    
+    @abstractmethod
+    def post_current_io_module(self,is_physical:bool=None,is_physical_enabled:bool=None):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def post_current_petrinet_debugging_info(
+        self,
+        places:dict[str,AbstractPetriNetPlace],
+        transition_collection:AbstractPetriNetTransitionsCollection,
+        fired_transition:AbstractPetriNetTransition|None = None
+    ):
+        raise NotImplementedError
+    

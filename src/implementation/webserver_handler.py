@@ -10,7 +10,7 @@ from flask_cors import CORS
 
 from src.abstract.abstract_webserver_handler import AbstractWebServerHandler
 from src.abstract.abstract_state_machine import AbstractStateMachine
-from src.abstract.abstract_state_machine import AbstractStateMachine
+from src.abstract.abstract_petri_net_subcomponents import AbstractPetriNetPlace, AbstractPetriNetTransitionsCollection,AbstractPetriNetTransition
 
 class LocalWebServer(AbstractWebServerHandler):
     def __init__(self):
@@ -28,6 +28,8 @@ class LocalWebServer(AbstractWebServerHandler):
 
         self._current_state = None
         self._current_io = None
+        self._current_places_marking = None
+        self._current_transitions_enabling_state = None
         self._event_callback = None
         
         self._is_physical_io_module = True
@@ -73,6 +75,43 @@ class LocalWebServer(AbstractWebServerHandler):
                 "is_physical_io_module_enabled":self._is_physical_io_module_enabled
             }
         )
+    
+    def post_current_petrinet_debugging_info(
+        self,
+        places:dict[str,AbstractPetriNetPlace],
+        transition_collection:AbstractPetriNetTransitionsCollection,
+        fired_transition:AbstractPetriNetTransition|None = None
+    ):
+        transitions_enabling_state = {
+            transition.id:{
+                "is_petri_enabled":transition._is_petri_enabled_val,
+                "is_signal_enabled":transition._is_signal_enabled_val
+            } for transition in transition_collection
+        }
+
+        if fired_transition is not None:
+            self._current_places_marking = {place_id:place.marking for place_id,place in places.items()}
+            self._current_transitions_enabling_state = transitions_enabling_state
+            
+            self._socketio.emit(
+                "petrinet_debugging_info",
+                {
+                    "places_marking":self._current_places_marking,
+                    "transitions_enabling_state":self._current_transitions_enabling_state,
+                    "fired_transition":fired_transition.id
+                }
+            )
+        else:
+            if transitions_enabling_state != self._current_transitions_enabling_state:
+                self._current_transitions_enabling_state = transitions_enabling_state
+                self._socketio.emit(
+                    "petrinet_debugging_info",
+                    {
+                        "transitions_enabling_state":self._current_transitions_enabling_state,
+                    }
+                )
+
+        
 
     def post_state(self,state:AbstractStateMachine.States):
         if state != self._current_state:
@@ -90,6 +129,10 @@ class LocalWebServer(AbstractWebServerHandler):
             def index():
                 return app.send_static_file("index.html")
             
+            @app.route('/debug',methods=["GET"])
+            def petri_net_live_view():
+                return app.send_static_file("petri_net_live_view.html")
+            
             @app.route('/api/getFile/IOPT.json',methods=["GET"])
             def get_file():
                 return send_file(path_or_file= Path(self._IOPT_PATH).absolute(),as_attachment=True)
@@ -101,11 +144,31 @@ class LocalWebServer(AbstractWebServerHandler):
                 if self._current_io is not None:
                     emit("IO_update",self._current_io)
                 self.post_current_io_module()
+
+                with open(self._IOPT_PATH) as f:
+                    iopt_dict = json.load(f)
+                    print(iopt_dict)
+                    emit('petrinet_json_update',iopt_dict)
+                
+                self._socketio.emit(
+                    "petrinet_debugging_info",
+                    {
+                        "places_marking":self._current_places_marking,
+                        "transitions_enabling_state":self._current_transitions_enabling_state,
+                        "fired_transition":None
+                    }
+                )
                 
             @socketio.on("IOPT_update")
             def IOPT_update(new_IOPT):
                 with open(self._IOPT_PATH,'w') as f:
-                    f.write(json.dumps(json.loads(new_IOPT),indent=4))
+                    iopt_dict = json.loads(new_IOPT)
+                    f.write(json.dumps(iopt_dict,indent=4))
+                    emit('petrinet_json_update',iopt_dict,broadcast=True)
+
+                    self._current_places_marking = None 
+                    self._current_transitions_enabling_state = None 
+                    
                 
             @socketio.on("stateMachine_event_update")
             def relay_stateMachine_event_update(button_pressed_id:str):
