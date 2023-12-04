@@ -17,9 +17,13 @@ class Label {
 
 // Class for transitions in a Petri net
 class Transition {
-    constructor(x, y, isEnabled, label) {
+    constructor(x, y,isTimed, label,rotation) {
+
         this.position = new Position(x, y);
-        this.isEnabled = isEnabled; // Indicates if the transition is enabled
+        this.rotation = rotation
+        this.isPetriEnabled  = false; // Indicates if the transition is enabled
+        this.isSignalEnabled = false;
+        this.isTimed = isTimed;     // Boolean indicating if the transition is timed
         this.label = label;
     }
 }
