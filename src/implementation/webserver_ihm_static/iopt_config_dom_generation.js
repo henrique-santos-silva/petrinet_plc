@@ -22,7 +22,12 @@ function petrinet_xml2json(file) {
                 const id = placeElement.getAttribute("id");
                 const initial_marking = parseInt(placeElement.querySelector("initialMarking").querySelector("value").textContent.split(',')[1]); 
                 const capacity = parseInt(placeElement.querySelector("capacity").querySelector("value").textContent);
-                IOPT_dictionary['places'].push({id,initial_marking,capacity})
+                
+                const x_position = parseFloat(placeElement.querySelector("graphics").querySelector("position").getAttribute("x"));
+                const y_position = parseFloat(placeElement.querySelector("graphics").querySelector("position").getAttribute("y"));
+                const graphics = {x_position,y_position};
+                
+                IOPT_dictionary['places'].push({id,initial_marking,capacity,graphics});
                 
                 console.log(`Place ${index + 1}: id - ${id}, initial_marking - ${initial_marking}, capacity - ${capacity}`);
             });
@@ -34,7 +39,12 @@ function petrinet_xml2json(file) {
                 const priority = parseInt(transitionElement.querySelector("priority").querySelector("value").textContent);
                 const timed = transitionElement.querySelector("timed").querySelector("value").textContent == 'true';
                 
-                IOPT_dictionary[timed?'timed_transitions':'instantaneous_transitions'].push({id,rate,priority})
+                const x_position = parseFloat(transitionElement.querySelector("graphics").querySelector("position").getAttribute("x"));
+                const y_position = parseFloat(transitionElement.querySelector("graphics").querySelector("position").getAttribute("y"));
+                const rotation   = parseInt(transitionElement.querySelector("orientation").querySelector("value").textContent);
+                const graphics = {x_position,y_position,rotation}
+                
+                IOPT_dictionary[timed?'timed_transitions':'instantaneous_transitions'].push({id,rate,priority,graphics});
             });
 
             const arcElements = xmlDoc.querySelectorAll("arc");
@@ -44,7 +54,17 @@ function petrinet_xml2json(file) {
                 const target = arcElement.getAttribute("target");
                 const weight = parseInt(arcElement.querySelector("inscription").querySelector("value").textContent.split(',')[1]);
                 const type = arcElement.querySelector("type").getAttribute("value");
-                IOPT_dictionary['arcs'].push({id,source,target,weight,type})
+
+                const arcPathElements = arcElement.querySelectorAll("arcpath");
+                const graphic_path = [];
+
+                arcPathElements.forEach((arcPathElement,index)=>{
+                  const x_position = parseFloat(arcPathElement.getAttribute("x"));
+                  const y_position = parseFloat(arcPathElement.getAttribute("y"));
+                  graphic_path.push({x_position,y_position});
+                });
+                
+                IOPT_dictionary['arcs'].push({id,source,target,weight,type,graphic_path})
             });
             resolve(IOPT_dictionary);
         };

@@ -57,15 +57,6 @@ class PDR0004_IOHandler(AbstractIOHandler):
 
         return bits_list
     
-    # def _set_relay_output(self,id:int|str,val=bool):
-    #     if isinstance(id,int):
-    #         id = f"DO{id}"
-        
-    #     self._digital_outputs[id] = val
-
-    #     relay_output_byte,opto_isolated_output_byte = self._generate_bytes_from_bits([not bit for bit in self._digital_outputs.values()])
-
-    #     self.bus.write_byte(self.PCF_ADDRESS_RELAYS, relay_output_byte)
 
     @property
     def has_been_updated(self) -> bool:
@@ -90,7 +81,11 @@ class PDR0004_IOHandler(AbstractIOHandler):
         for output, output_bool_function in self._output_boolean_functions.items():
             self._digital_outputs[output] = output_bool_function(**places_bool)
         
-        opto_isolated_output_byte, relay_output_byte = self._generate_bytes_from_bits([not bit for bit in self._digital_outputs.values()])
+        relay_output_byte, opto_isolated_output_byte = self._generate_bytes_from_bits([not bit for bit in self._digital_outputs.values()])
+
+        #invert relay byte (b0<->b7,b1<->b6, ...)
+        relay_output_byte = self._generate_bytes_from_bits([bit for bit in reversed(self._generate_bits_from_byte(relay_output_byte))])[0]
+
         self.bus.write_byte(self.PCF_ADDRESS_RELAYS,                 relay_output_byte)
         self.bus.write_byte(self.PCF_ADDRESS_OPTO_ISOLATED_OUTPUTS,  opto_isolated_output_byte)    
 

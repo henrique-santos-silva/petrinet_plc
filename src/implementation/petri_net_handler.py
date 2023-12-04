@@ -5,15 +5,19 @@ from time import sleep
 from src.abstract.abstract_bool_parser import AbstractBoolParser
 from src.abstract.abstract_io_handler import AbstractIOHandler
 from src.abstract.abstract_petri_net_handler import AbstractPetriNetHandler
+from src.abstract.abstract_webserver_handler import AbstractWebServerHandler
+
 from src.implementation.petri_net_subcomponents import Arc,Place,TimedTransition,InstantaneousTransition,TransitionsCollection,PetriNetDeadlockError
 
 class PetriNetHandler(AbstractPetriNetHandler):
     def __init__(self,
                 io_handler: AbstractIOHandler,
-                BoolParserClass:Type[AbstractBoolParser]
+                BoolParserClass:Type[AbstractBoolParser],
+                webserver_handler:AbstractWebServerHandler
     ) -> None:
         self._io_handler = io_handler
         self._BoolParserClass = BoolParserClass
+        self._webserver_handler = webserver_handler
         self._event_callback = None
 
         self._run_thread = threading.Thread(target=self._run,daemon=True)
@@ -103,9 +107,9 @@ class PetriNetHandler(AbstractPetriNetHandler):
     def _step(self):
         self._step_execution_finished.clear()
         try:
-            transition_chosen_to_fire = self._transitions_collection.get_transition_chosen_to_fire()
-            if transition_chosen_to_fire is not None:
-                transition_chosen_to_fire.fire()
+            self._transition_chosen_to_fire = self._transitions_collection.get_transition_chosen_to_fire()
+            if self._transition_chosen_to_fire is not None:
+                self._transition_chosen_to_fire.fire()
                 self._io_handler.update_outputs(self._places)
 
                 for place in self._places.values():
@@ -116,4 +120,5 @@ class PetriNetHandler(AbstractPetriNetHandler):
         except PetriNetDeadlockError:
             self._event_callback(self.__class__.Events.deadLock)
         finally:
+            self._webserver_handler.post_current_petrinet_debugging_info(self._places,self._transitions_collection,self._transition_chosen_to_fire)
             self._step_execution_finished.set()
