@@ -157,5 +157,86 @@ class Arc {
         this.label = label;
         this.path = path; // Path should be a list of Position instances
     }
-}
+    draw(ctx) {
 
+        ctx.fillStyle   = 'black';
+        ctx.strokeStyle = 'black';
+        if (this.path.length < 2) {
+            console.error("Not enough points to draw an arc");
+            return;
+        }
+
+        // Begin drawing the arc path
+        ctx.beginPath();
+        ctx.moveTo(this.path[0].x, this.path[0].y);
+
+        // Draw lines connecting each point in the path
+        for (let i = 1; i < this.path.length; i++) {
+            ctx.lineTo(this.path[i].x, this.path[i].y);
+        }
+
+        // Stroke the path
+        ctx.stroke();
+
+        // Draw either an arrowhead or a circle at the last position based on the arc type
+        const lastPoint = this.path[this.path.length - 1];
+        const secondLastPoint = this.path[this.path.length - 2];
+        if (this.isInhibitor) {
+            // If the arc is an inhibitor, draw a circle at the end
+            this.drawInhibitorArcEnd(ctx, secondLastPoint, lastPoint,);
+        } else {
+            // If it's a regular arc, draw an arrowhead
+            this.drawArrowhead(ctx, secondLastPoint, lastPoint);
+        }
+    }
+
+    // Method to draw an arrowhead at the end of the arc
+    drawArrowhead(ctx, from, to) {
+        const headLength = 10    ; // The size of the arrow head
+
+        // Calculate the angle of the line
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const angle = Math.atan2(dy, dx);
+
+        // Start drawing the arrowhead from the end point
+        ctx.beginPath();
+        
+        // Move to the tip of the arrow
+        ctx.moveTo(to.x, to.y);
+
+        // Draw the first side of the arrowhead
+        ctx.lineTo(to.x - headLength * Math.cos(angle - Math.PI / 6), to.y - headLength * Math.sin(angle - Math.PI / 6));
+
+        // Draw the line back to the tip of the arrow to create the second side
+        ctx.moveTo(to.x, to.y); // Move back to the tip of the arrow
+        ctx.lineTo(to.x - headLength * Math.cos(angle + Math.PI / 6), to.y - headLength * Math.sin(angle + Math.PI / 6));
+
+
+
+        // Set the style for the arrowhead
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+
+        // Apply the stroke to the arrowhead
+        ctx.stroke();
+    }
+
+    // Method to draw the end of an inhibitor arc with a circle
+    drawInhibitorArcEnd(ctx, from, to) {
+        const radius = 3;
+        // Calculate the angle of the last line segment
+        const angle = Math.atan2(to.y - from.y, to.x - from.x);
+        // Determine the center point of the circle so that it touches the last point of the arc path
+        const circleCenterX = to.x - radius * Math.cos(angle);
+        const circleCenterY = to.y - radius * Math.sin(angle);
+
+        // Draw the outlined circle with a white fill
+        ctx.beginPath();
+        ctx.arc(circleCenterX, circleCenterY, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white'; // Set the fill color to white
+        ctx.fill(); // Apply the fill to the circle
+        ctx.strokeStyle = 'black'; // Set the stroke color for the circle
+        ctx.stroke(); // Apply the stroke to the circle
+    }
+}
