@@ -50,4 +50,5 @@ Petri net-based Programmable Logic Controller
 2. **Open browser**
    * **Human Machine Interface**:[http://[::1]:50000](http://[::1]:50000)
    * **IOs Emulator**[http://[::1]:50001](http://[::1]:50001)
+   * **PetriNet live view**[http://[::1]:50000/debug](http://[::1]:50000/debug)
    
