@@ -147,7 +147,6 @@ class LocalWebServer(AbstractWebServerHandler):
 
                 with open(self._IOPT_PATH) as f:
                     iopt_dict = json.load(f)
-                    print(iopt_dict)
                     emit('petrinet_json_update',iopt_dict)
                 
                 self._socketio.emit(
