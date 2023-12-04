@@ -1,3 +1,7 @@
+var places_global = {};
+var transitions_global = {};
+var arcs_global = [];
+var extreme_coord = {min_x:Infinity,min_y:Infinity,max_x:-Infinity,max_y:-Infinity}
 // Class to represent a position with x and y coordinates
 class Position {
     constructor(x, y) {
@@ -239,4 +243,76 @@ class Arc {
         ctx.strokeStyle = 'black'; // Set the stroke color for the circle
         ctx.stroke(); // Apply the stroke to the circle
     }
+}
+
+
+function generatePetriNetFromJson(petriNetJson) {
+    transitions_global = {};
+    places_global = {};
+    arcs_global = [];
+    extreme_coord = {min_x:Infinity,min_y:Infinity,max_x:-Infinity,max_y:-Infinity}
+
+    // initialize Arcs
+    petriNetJson.arcs.forEach(arc => {
+        const path = arc.graphic_path.map(point => new Position(point.x_position, point.y_position)); // Map the graphic path to Position instances
+        const newArc = new Arc(
+            arc.weight,
+            arc.type === "inhibitor", // Determine if the arc is an inhibitor
+            new Label(arc.weight, path[0]), // Assume the label position is the first point of the arc path
+            path
+        );
+        arcs_global.push(newArc)
+
+
+    });
+
+    // initialize Places
+    petriNetJson.places.forEach(place => {
+        const newPlace = new Place(
+            place.graphics.x_position,
+            place.graphics.y_position,
+            place.initial_marking,
+            new Label(
+                place.id,
+                new Position(
+                    place.graphics.x_position,
+                    place.graphics.y_position -10
+                )
+            )
+
+            );
+        extreme_coord.min_x = Math.min(place.graphics.x_position, extreme_coord.min_x);
+        extreme_coord.min_y = Math.min(place.graphics.y_position, extreme_coord.min_y);
+        extreme_coord.max_x = Math.max(place.graphics.x_position, extreme_coord.max_x);
+        extreme_coord.max_y = Math.max(place.graphics.y_position, extreme_coord.max_y);
+
+        places_global[place.id] = newPlace;
+    });
+
+    // initialize Transitions (both instantaneous and timed)
+    const transitions = [...petriNetJson.instantaneous_transitions, ...petriNetJson.timed_transitions];
+    transitions.forEach(transition => {
+        const isTimed = 'timer_sec' in transition;
+        const newTransition = new Transition(
+            transition.graphics.x_position,
+            transition.graphics.y_position,
+            isTimed,
+            new Label(
+                transition.id,
+                new Position(
+                    transition.graphics.x_position, 
+                    transition.graphics.y_position -10
+                )
+            ),
+            transition.graphics.rotation
+        );
+        transitions_global[transition.id] = newTransition;
+
+        extreme_coord.min_x = Math.min(transition.graphics.x_position, extreme_coord.min_x);
+        extreme_coord.min_y = Math.min(transition.graphics.y_position, extreme_coord.min_y);
+        extreme_coord.max_x = Math.max(transition.graphics.x_position, extreme_coord.max_x);
+        extreme_coord.max_y = Math.max(transition.graphics.y_position, extreme_coord.max_y);
+
+    });
+
 }
