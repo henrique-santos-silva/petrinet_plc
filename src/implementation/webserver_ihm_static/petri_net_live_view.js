@@ -2,6 +2,34 @@ var places_global = {};
 var transitions_global = {};
 var arcs_global = [];
 var extreme_coord = {min_x:Infinity,min_y:Infinity,max_x:-Infinity,max_y:-Infinity}
+$(document).ready(function (){
+    var infinite_canvas = new InfiniteCanvas('petriNetCanvas');
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on('petrinet_json_update',function(IOPT_dictionary){
+        console.log('petrinet_json_update')
+        generatePetriNetFromJson(IOPT_dictionary);
+        infinite_canvas.redraw()
+    });
+    
+    socket.on('petrinet_debugging_info',function(petrinet_debugging_info){
+        console.log('petrinet_debugging_info')
+        for (let transition_id in petrinet_debugging_info.transitions_enabling_state) {
+            transition = transitions_global[transition_id];
+            transition.isPetriEnabled  = petrinet_debugging_info.transitions_enabling_state[transition_id].is_petri_enabled
+            transition.isSignalEnabled = petrinet_debugging_info.transitions_enabling_state[transition_id].is_signal_enabled
+        }
+
+        if ('places_marking' in petrinet_debugging_info){
+            
+            for (let place_id in petrinet_debugging_info.places_marking) {
+                place = places_global[place_id];
+                place.marking = petrinet_debugging_info.places_marking[place_id];
+            }
+        }
+        infinite_canvas.redraw()
+    });
+})
 // Class to represent a position with x and y coordinates
 class Position {
     constructor(x, y) {
