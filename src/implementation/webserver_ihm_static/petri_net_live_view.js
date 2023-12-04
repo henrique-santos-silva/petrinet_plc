@@ -84,10 +84,68 @@ class Transition {
 
 // Class for places in a Petri net
 class Place {
+
+    static R = 15; // place radius. empirical value
+    static X_OFFSET = 12; //empirical value
+    static Y_OFFSET = 12; //empirical value
+    static TOKEN_RADIUS = 3;
+
     constructor(x, y, marking, label) {
         this.position = new Position(x, y);
         this.marking = marking; // A number indicating the number of tokens
         this.label = label;
+    }
+
+    // Method to draw the Place on the canvas
+    draw(ctx) {
+        ctx.fillStyle   = 'black';
+        ctx.strokeStyle = 'black';
+
+        // Erase previous tokens by filling the circle with white
+        ctx.beginPath();
+        ctx.arc(this.position.x + Place.X_OFFSET, this.position.y + Place.Y_OFFSET, Place.R, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+
+        // Draw the outer circle for the Place
+        ctx.beginPath();
+        ctx.arc(this.position.x + Place.X_OFFSET, this.position.y + Place.Y_OFFSET, Place.R, 0, 2 * Math.PI);
+        ctx.fillStyle = 'black';  // Set fill color back to black for tokens
+        ctx.stroke();
+
+        
+
+        // If marking is 1, draw a single token centered in the Place
+        if (this.marking === 1) {
+            ctx.beginPath();
+            ctx.arc(this.position.x + Place.X_OFFSET, this.position.y + Place.Y_OFFSET, Place.TOKEN_RADIUS, 0, 2 * Math.PI);
+            ctx.fill();
+        } else if (this.marking <= 5) {
+            // Draw individual tokens for marking of 2 to 5
+            for (let i = 0; i < this.marking; i++) {
+                let angle = i * (2 * Math.PI / this.marking);
+                let tokenX = this.position.x + Place.X_OFFSET + 0.5*Place.R * Math.cos(angle);
+                let tokenY = this.position.y + Place.Y_OFFSET + 0.5*Place.R * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.arc(tokenX, tokenY, Place.TOKEN_RADIUS, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+          //Write the number of tokens  
+        } else if (this.marking <= 10){
+            ctx.fillText(this.marking.toString(), this.position.x + Place.X_OFFSET - 0.2* Place.r, this.position.y + Place.Y_OFFSET + 0.2*Place.R);
+        }else if (this.marking <= 100){
+            ctx.fillText(this.marking.toString(), this.position.x + Place.X_OFFSET - 0.4* Place.r, this.position.y + Place.Y_OFFSET + 0.2*Place.R);
+        }else if (this.marking <= 1000){
+            ctx.fillText(this.marking.toString(), this.position.x + Place.X_OFFSET - 0.6* Place.r, this.position.y + Place.Y_OFFSET + 0.2*Place.R);
+        }
+        else{
+            ctx.fillText(this.marking.toString(), this.position.x + Place.X_OFFSET - 0.8* Place.r, this.position.y + Place.Y_OFFSET + 0.2*Place.R);
+        }
+        
+        // Draw the label of the Place
+        this.label.draw(ctx);
     }
 }
 
