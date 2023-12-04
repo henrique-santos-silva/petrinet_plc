@@ -40,6 +40,12 @@ class Label {
 
 // Class for transitions in a Petri net
 class Transition {
+
+    static WIDTH    = 11; //empirical value
+    static HEIGHT   = 31; //empirical value
+    static X_OFFSET = 6;  //empirical value
+    static Y_OFFSET = -3; //empirical value
+    
     constructor(x, y,isTimed, label,rotation) {
 
         this.position = new Position(x, y);
@@ -48,6 +54,31 @@ class Transition {
         this.isSignalEnabled = false;
         this.isTimed = isTimed;     // Boolean indicating if the transition is timed
         this.label = label;
+    }
+
+    // Method to draw the Transition on the canvas
+    draw(ctx) {
+        ctx.lineWidth = 2;
+        if (this.isTimed) {
+            // Draw an outlined rectangle for timed transitions
+            ctx.strokeStyle = this.isPetriEnabled ? (this.isSignalEnabled ? 'yellow' : 'red') : 'black';
+            if (this.rotation == 90){
+                ctx.strokeRect(this.position.x + Transition.Y_OFFSET, this.position.y + Transition.X_OFFSET, Transition.HEIGHT, Transition.WIDTH);
+            }else{
+                ctx.strokeRect(this.position.x + Transition.X_OFFSET, this.position.y + Transition.Y_OFFSET, Transition.WIDTH, Transition.HEIGHT);
+            }
+        } else {
+            // Draw a filled rectangle for non-timed transitions
+            ctx.fillStyle = this.isPetriEnabled ? 'red' : 'black';
+            if (this.rotation == 90){
+                ctx.fillRect(this.position.x + Transition.Y_OFFSET, this.position.y + Transition.X_OFFSET, Transition.HEIGHT, Transition.WIDTH);
+            }else{
+                ctx.fillRect(this.position.x   + Transition.X_OFFSET, this.position.y + Transition.Y_OFFSET, Transition.WIDTH, Transition.HEIGHT);
+            }
+        }
+
+        // Draw the label of the Transition
+        this.label.draw(ctx);
     }
 }
 
