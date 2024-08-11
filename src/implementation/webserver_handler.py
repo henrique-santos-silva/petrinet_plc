@@ -145,9 +145,10 @@ class LocalWebServer(AbstractWebServerHandler):
                     emit("IO_update",self._current_io)
                 self.post_current_io_module()
 
-                with open(self._IOPT_PATH) as f:
-                    iopt_dict = json.load(f)
-                    emit('petrinet_json_update',iopt_dict)
+                if self.check_petri_net_files_existence():
+                    with open(self._IOPT_PATH) as f:
+                        iopt_dict = json.load(f)
+                        emit('petrinet_json_update',iopt_dict)
                 
                 self._socketio.emit(
                     "petrinet_debugging_info",
