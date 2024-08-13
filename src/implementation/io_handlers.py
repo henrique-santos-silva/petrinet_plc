@@ -38,7 +38,7 @@ class PDR0004_IOHandler(AbstractIOHandler):
 
         bytes_list = []
         byte_value = 0
-        for i, bit in enumerate(bits):
+        for i, bit in enumerate(reversed(bits)):
             byte_value = (byte_value << 1) | bit
             if (i + 1) % 8 == 0:
                 bytes_list.append(byte_value)
@@ -81,10 +81,10 @@ class PDR0004_IOHandler(AbstractIOHandler):
         for output, output_bool_function in self._output_boolean_functions.items():
             self._digital_outputs[output] = output_bool_function(**places_bool)
         
-        relay_output_byte, opto_isolated_output_byte = self._generate_bytes_from_bits([not bit for bit in self._digital_outputs.values()])
+        opto_isolated_output_byte, relay_output_byte = self._generate_bytes_from_bits([not bit for bit in self._digital_outputs.values()])
 
         #invert relay byte (b0<->b7,b1<->b6, ...)
-        relay_output_byte = self._generate_bytes_from_bits([bit for bit in reversed(self._generate_bits_from_byte(relay_output_byte))])[0]
+        #relay_output_byte = self._generate_bytes_from_bits([bit for bit in reversed(self._generate_bits_from_byte(relay_output_byte))])[0]
 
         self.bus.write_byte(self.PCF_ADDRESS_RELAYS,                 relay_output_byte)
         self.bus.write_byte(self.PCF_ADDRESS_OPTO_ISOLATED_OUTPUTS,  opto_isolated_output_byte)    
