@@ -15,9 +15,10 @@ class BoolParser(AbstractBoolParser):
         r'''
         string containing white spaces, parenthesis,
         ! : NOT operator,
+        ~ : NOT Operator,
         ^ : XOR operator,
-        | : OR operator,
-        & : AND operator,
+        ||: OR operator,
+        &&: AND operator,
         regex 'i\d+': input ("ex:i1,i0,i100000"),
         regex 'P\d+': place ("ex:P0,P1,P100000"),
         true,
@@ -43,9 +44,10 @@ class BoolParser(AbstractBoolParser):
         p0 = p1 = 0
         tokens:list[str] = []
         token_tmp:str|None = None
+        
         while p0 <= p1 < len(self.raw):
             substring = self.raw[p0:p1+1]
-            if substring in [*"()!^|&","true","false"]:
+            if substring in [*"()!~^", "&&", "||", "and", "or", "not", "xor", "true", "false"]:
                 tokens.append(substring)
                 p0 = p1 = p1+1
                 continue
@@ -59,6 +61,7 @@ class BoolParser(AbstractBoolParser):
                     continue
             
             p1 += 1
+
         if token_tmp is not None:
             tokens.append(token_tmp)
             
@@ -75,9 +78,11 @@ class BoolParser(AbstractBoolParser):
         conversion_map = {
             'true':"True",
             'false':"False",
-            "!":"not",
-            "|":'or',
-            "&":"and"
+            "~":'not',
+            "!":'not',
+            "||": 'or',
+            "xor": '^',
+            "&&": "and",
         }
         for i in range(len(self._tokens)):
             if self._tokens[i] in ["true","false"] or self._tokens[i][0] in ('d','p'):
