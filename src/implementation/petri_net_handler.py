@@ -67,14 +67,7 @@ class PetriNetHandler(AbstractPetriNetHandler):
                 rate = timed_transition["rate"],
                 priority=timed_transition["priority"],
                 signal_enabling_expression=timed_transition["signal_enabling_expression"],
-                # Originalmente timer_sec=timed_transition["timer_sec"]
-                # Para passar a usar a propriedade 'rate' como o parâmetro 
-                # de tempo é possível fazer uma das duas alterações:
-                #  * (feita temporariamente na linha abaixo) Alterar a lógica de consumo da informação, passando a consumir o rate como timer_sec
-                #  * Alterar a lógica de geração do json, no frontend
-                # Acredito que a segunda opção faz mais sentido (para não preservar um campo no json que na prática estará inutilizado)
-                # mas na call feita no dia 11/08/24 foi feita a alteração rápida com base na primeira opção, para efeitos de demonstração
-                timer_sec=timed_transition["rate"], # originalmente timed_transition["timer_sec"]
+                timer_sec=timed_transition["timer_sec"],
                 io_handler= self._io_handler,
                 BoolParserClass=self._BoolParserClass,
             )
