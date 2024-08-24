@@ -113,8 +113,8 @@ function petrinet_xml2json(file) {
             const arcElements = xmlDoc.querySelectorAll("arc");
             arcElements.forEach((arcElement, index) => {
                 const id = arcElement.getAttribute("id");
-                const source = arcElement.getAttribute("source");
-                const target = arcElement.getAttribute("target");
+                const {name:source} = sanitizePlaceOrTransitionName(arcElement.getAttribute("source"));
+                const {name:target} = sanitizePlaceOrTransitionName(arcElement.getAttribute("target"));
                 const weight = parseInt(arcElement.querySelector("inscription").querySelector("value").textContent.split(',')[1]);
                 const type = arcElement.querySelector("type").getAttribute("value");
 
