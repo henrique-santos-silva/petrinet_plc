@@ -1,3 +1,28 @@
+/**
+ * 
+ *
+ * @param {string} placeOrTransitionId
+ * @return {{ name: string, remainingString: string? }}
+ */
+function sanitizePlaceOrTransitionName(placeOrTransitionId){
+  function sanitize(s){
+    return s.trim().replace(' ','_').toLowerCase();
+  }
+  
+  const startOfExpressionIndex = placeOrTransitionId.indexOf('(');
+  if (startOfExpressionIndex === -1) {
+    return { name: sanitize(placeOrTransitionId), remainingString: null};
+  }
+  let remainingString = placeOrTransitionId.slice(startOfExpressionIndex).trim();
+  remainingString = remainingString.slice(1, remainingString.length - 1);
+
+  return {
+    name: sanitize(placeOrTransitionId.slice(0, startOfExpressionIndex)),
+    remainingString,
+  };
+
+}
+
 function petrinet_xml2json(file) {
     return new Promise((resolve, reject) => {
       if (file) {
@@ -130,14 +155,9 @@ function petrinet_xml2json(file) {
  * @return {{ transitionName: string, enablingExpression: string }} - An object containing the transition name and the enabling expression.
  */
 function get_transition_signal_enabling_expression_from_id(transitionId) {
-  const startOfExpressionIndex = transitionId.indexOf('(');
-  
-  if (startOfExpressionIndex === -1) {
-    return { transitionName: transitionId, enablingExpression: 'true' };
-  } else {
+  const {name:transitionName,remainingString} = sanitizePlaceOrTransitionName(transitionId)
     return {
-      transitionName: transitionId.slice(0, startOfExpressionIndex),
-      enablingExpression: transitionId.slice(startOfExpressionIndex)
+    transitionName,
+    enablingExpression: remainingString ?? "true"
     };
-  }
 }
