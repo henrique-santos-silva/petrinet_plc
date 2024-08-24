@@ -43,6 +43,13 @@ function petrinet_xml2json(file) {
 
             // Access all the place elements
             const placeElements = xmlDoc.querySelectorAll("place");
+          
+            // dict used to create 'marking_to_output_expressions' obj in json
+            const dict_output_to_listOfPlaces = {};
+            for (let i = 0; i <= 15; i++) {
+              dict_output_to_listOfPlaces[`DO${i}`] = [];
+            }
+
             placeElements.forEach((placeElement, index) => {
                 const id = placeElement.getAttribute("id");
                 const initial_marking = parseInt(placeElement.querySelector("initialMarking").querySelector("value").textContent.split(',')[1]); 
@@ -52,10 +59,30 @@ function petrinet_xml2json(file) {
                 const y_position = parseFloat(placeElement.querySelector("graphics").querySelector("position").getAttribute("y"));
                 const graphics = {x_position,y_position};
                 
-                IOPT_dictionary['places'].push({id,initial_marking,capacity,graphics});
+                const {placeName, outputSignals} = get_output_signals_from_place_id(id);
+                IOPT_dictionary['places'].push({id:placeName,initial_marking,capacity,graphics});
+                
+                outputSignals.forEach(o => {
+                  if (o in dict_output_to_listOfPlaces){
+                    dict_output_to_listOfPlaces[o].push(placeName)
+                  }else{
+                    dict_output_to_listOfPlaces[o] = [placeName]
+                  }
+                });
+
                 
                 console.log(`Place ${index + 1}: id - ${id}, initial_marking - ${initial_marking}, capacity - ${capacity}`);
             });
+
+            Object.entries(dict_output_to_listOfPlaces).forEach(([key, listOfPlaces]) => {
+              if (listOfPlaces.length > 0){
+                dict_output_to_listOfPlaces[key] = listOfPlaces.join(" || "); 
+              }else{
+                dict_output_to_listOfPlaces[key] = "true";
+              }
+
+            });
+            IOPT_dictionary["marking_to_output_expressions"] = dict_output_to_listOfPlaces
 
             const transitionElements = xmlDoc.querySelectorAll("transition");
             transitionElements.forEach((transitionElement, index) => {
@@ -144,6 +171,24 @@ function petrinet_xml2json(file) {
         reject(new Error("Nenhum arquivo fornecido."));
       }
     });
+  }
+
+/**
+ * Given a placeId, returns the place name and a list of output signals associated with that place.
+ *
+ * @param {string} placeId - The ID of the place to check.
+ * @return {{ placeName: string, outputSignals: string[] }} - An object containing the place name and an array of output signals associated with the place.
+ */
+function get_output_signals_from_place_id(placeId) {
+  const {name:placeName,remainingString:signalsString} = sanitizePlaceOrTransitionName(placeId  )
+  let outputSignals = [];
+  if (signalsString !== null){
+    outputSignals = signalsString
+      .split(';')
+      .filter(s => s !== '')
+      .map(s => s.trim());
+  }
+  return { placeName, outputSignals };
   }
 
 /**
