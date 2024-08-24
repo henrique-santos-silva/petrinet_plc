@@ -44,7 +44,18 @@ function petrinet_xml2json(file) {
                 const rotation   = parseInt(transitionElement.querySelector("orientation").querySelector("value").textContent);
                 const graphics = {x_position,y_position,rotation}
                 
-                IOPT_dictionary[timed?'timed_transitions':'instantaneous_transitions'].push({id,rate,priority,graphics});
+                let {transitionName,enablingExpression} = get_transition_signal_enabling_expression_from_id(id);
+                
+                transitionObj = {
+                  id:transitionName,
+                  signal_enabling_expression: enablingExpression,
+                  rate,priority,graphics
+                }
+                if (timed){
+                  transitionObj["timer_sec"] = rate
+                }
+
+                IOPT_dictionary[timed?'timed_transitions':'instantaneous_transitions'].push(transitionObj);
             });
 
             const arcElements = xmlDoc.querySelectorAll("arc");
@@ -66,6 +77,7 @@ function petrinet_xml2json(file) {
                 
                 IOPT_dictionary['arcs'].push({id,source,target,weight,type,graphic_path})
             });
+            console.log(IOPT_dictionary)
             resolve(IOPT_dictionary);
         };
   
@@ -108,3 +120,24 @@ function petrinet_xml2json(file) {
       }
     });
   }
+
+/**
+ * Extracts the transition name and enabling expression from a given transitionId.
+ * If the transitionId contains an expression in parentheses, returns the name and the expression.
+ * If the transitionId does not contain an expression, returns the name and 'true'.
+ * 
+ * @param {string} transitionId - The ID of the transition to parse.
+ * @return {{ transitionName: string, enablingExpression: string }} - An object containing the transition name and the enabling expression.
+ */
+function get_transition_signal_enabling_expression_from_id(transitionId) {
+  const startOfExpressionIndex = transitionId.indexOf('(');
+  
+  if (startOfExpressionIndex === -1) {
+    return { transitionName: transitionId, enablingExpression: 'true' };
+  } else {
+    return {
+      transitionName: transitionId.slice(0, startOfExpressionIndex),
+      enablingExpression: transitionId.slice(startOfExpressionIndex)
+    };
+  }
+}
