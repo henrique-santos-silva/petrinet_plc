@@ -10,7 +10,12 @@ function is_valid_expression( //--> list[str]
 
     let extra_tokens_lower = extra_tokens.map(token => token.toLowerCase());
 
-    const basic_tokens = ['(', ')', '||', '&&', '^', '!', '~', 'true', 'false', 'AND', 'OR', 'NOT', 'XOR'];
+    basicTokensRegression = {
+        'true':'true','false':'false','(':'(',')':')',
+        '||':'|', '&&':'&', '^':'^', '!':'!', '~':'!',
+        'and':'&','or': '|','not': '!','xor': '^'  
+    }
+    const basic_tokens = ['(', ')', '||', '&&', '^', '!', '~', 'true', 'false', 'and', 'or', 'not', 'xor'];
     const valid_tokens = [...extra_tokens, ...basic_tokens];
     let p0 = 0, p1 = 0;
     const tokens = [];
@@ -22,7 +27,7 @@ function is_valid_expression( //--> list[str]
         let substring_lower = substring.toLowerCase()
         if (basic_tokens.includes(substring_lower)) {
             tokens.push(substring);
-            tokens_bool_substitution.push(substring_lower);
+            tokens_bool_substitution.push(basicTokensRegression[substring_lower]);
             p0 = p1;
             continue;
         } else if ((substring_lower.startsWith('di') || substring_lower.startsWith('p')) && extra_tokens_lower.includes(substring_lower)) {
@@ -49,7 +54,10 @@ function is_valid_expression( //--> list[str]
         // return tokens;
         return [false, ""];
     }
-    const final_expression = tokens.join(" ") + " ";
+    const final_expression = tokens
+        .map(t => t in basicTokensRegression ?
+                basicTokensRegression[t]:t
+        ).join(" ") + " ";
     const proxy_expression_for_validation = tokens_bool_substitution.join(" ");
     try {
         eval(!(!(eval(proxy_expression_for_validation))))
