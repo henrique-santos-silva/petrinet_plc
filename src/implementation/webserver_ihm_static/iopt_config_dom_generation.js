@@ -145,33 +145,7 @@ function petrinet_xml2json(file) {
     });
   }
 
-  function petrinet_load_json(file) {
-    return new Promise((resolve, reject) => {
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const fileContent = e.target.result;
-            let IOPT_dictionary
-            try {
-              // Parse the JSON data into a JavaScript object
-              IOPT_dictionary = JSON.parse(e.target.result);
-            } catch (error) {
-                console.error("Error parsing JSON:", error);
-            }
-            resolve(IOPT_dictionary);
-        };
-  
-        reader.onerror = function (error) {
-          reject(error);
-        };
-  
-        reader.readAsText(file);
 
-      } else {
-        reject(new Error("Nenhum arquivo fornecido."));
-      }
-    });
-  }
 
 /**
  * Given a placeId, returns the place name and a list of output signals associated with that place.
