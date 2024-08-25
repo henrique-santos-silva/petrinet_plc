@@ -1,146 +1,128 @@
 <!DOCTYPE html>
 <html lang="pt-br" data-bs-theme="dark">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <link href="/static/lib/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">        
-        
-        <script src="/static/lib/jquery.min.js"></script>
-        <script src="/static/lib/popper.min.js"></script>
-        <script src="/static/lib/bootstrap.min.js"></script>        
-        <script src="/static/lib/socket.io.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <!--toggle-->
-        <link href="/static/lib/bootstrap4-toggle.min.css" rel="stylesheet">
-        <script src="/static/lib/bootstrap4-toggle.min.js"></script> 
-        
-        <script src="/static/index.js"></script> 
-        <script src="/static/iopt_config_validation.js"></script> 
-        <script src="/static/iopt_config_dom_generation.js"></script> 
-        <script src="/static/iopt_config_autocomplete.js"></script> 
+    <link href="/static/lib/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-        <link rel="stylesheet" href="/static/mystyle.css">
-        
-        <title>PetriNet PLC Basic IMH</title>
-    </head>
+    <script src="/static/lib/jquery.min.js"></script>
+    <script src="/static/lib/popper.min.js"></script>
+    <script src="/static/lib/bootstrap.min.js"></script>
+    <script src="/static/lib/socket.io.js"></script>
 
-    <body  class="l0">
-        <div class="container" style="max-width: 640px; ">
-            <div id = "new_file" class="m-2 border rounded l1" style="display: none;">
-                <h2 class ="text-center">Carregue um dos arquivos da RdP</h2>
-                <div class="m-2 border d-flex flex-column justify-content-around rounded l2 ">
-                    <div class="container my-3">
-                        <label class="form-label" for="petrinet_xml_file">Rede de Petri (XML)</label>
-                        <input type="file" class="form-control" name="file" accept=".xml" id="petrinet_xml_file">
-                    </div>
-                    <div class="container my-3 l2">
-                        <label class="form-label" for="petrinet_json_file">Rede de Petri (JSON)</label>
-                        <input type="file" class="form-control" name="file" accept=".json" id="petrinet_json_file">
-                    </div>
-                    <a href="/api/getFile/IOPT.json" class="btn btn-secondary m-2" id="btn-download_iopt_from_server">
-                        Baixar IOPT.json previamente carregado.
-                    </a>
+    <!--toggle-->
+    <link href="/static/lib/bootstrap4-toggle.min.css" rel="stylesheet">
+    <script src="/static/lib/bootstrap4-toggle.min.js"></script>
+
+    <script src="/static/index.js"></script>
+    <script src="/static/iopt_config_validation.js"></script>
+    <script src="/static/iopt_config_dom_generation.js"></script>
+
+    <link rel="stylesheet" href="/static/mystyle.css">
+
+    <title>PetriNet PLC Basic IMH</title>
+</head>
+
+<body class="l0">
+    <div class="container" style="max-width: 640px; ">
+        <div id="new_file" class="m-2 border rounded l1" style="display: none;">
+            <h2 class="text-center">Carregue um dos arquivos da RdP</h2>
+            <div class="m-2 border d-flex flex-column justify-content-around rounded l2 ">
+                <div class="container my-3">
+                    <label class="form-label" for="petrinet_xml_file">Rede de Petri (XML)</label>
+                    <input type="file" class="form-control" name="file" accept=".xml" id="petrinet_xml_file">
                 </div>
-                <div id = "IOPT_config">
-                    <div class="m-2 border d-flex flex-column justify-content-around rounded l2" >
-                        <h3 class ="text-center">Configuração adicional p/ IOPT</h3>
-                        <div class="m-1 p-1 border rounded l3">
-                            <h4 class ="text-center">Mapeamento sinal de entrada -> transição</h4>
-                            <div class="form d-flex flex-column" id="transition_signal_enabling_condition_container">
-                            </div>
-                        </div>
-                        <div class="m-1 p-1 border rounded l3">
-                            <h4 class ="text-center">Mapeamento lugar -> sinal de saída</h4>
-                            <div class="d-flex flex-column" id="output_activation_condition_container"></div>
-                        </div>
-                        <div class="m-1 p-1 border rounded l3" id="timer_div">
-                            <h4 class ="text-center">Mapeamento de temporizadores de transições (s)</h4>
-                            <div class="d-flex flex-column" id="timed_transition_timer_container"></div>
-                        </div>
-                        <div class="m-2 d-flex flex-row justify-content-around">
-                            <button type="button" class="btn btn-secondary mx-2" id="btn-cancel_iopt_config">Cancelar</button>
-                            <button type="button" class="btn btn-secondary flex-grow-1 mx-2" id="btn-try_to_send_iopt_config">Enviar</button>
-                        </div>
+                <a href="/api/getFile/IOPT.json" class="btn btn-secondary m-2" id="btn-download_iopt_from_server">
+                    Baixar IOPT.json previamente carregado.
+                </a>
+            </div>
+            <div id="IOPT_config">
+                <div class="m-2 border d-flex flex-column justify-content-around rounded l2">
+                    <div class="m-2 d-flex flex-row justify-content-around">
+                        <button type="button" class="btn btn-secondary mx-2"
+                            id="btn-cancel_iopt_config">Cancelar</button>
+                        <button type="button" class="btn btn-secondary flex-grow-1 mx-2"
+                            id="btn-try_to_send_iopt_config">Enviar</button>
                     </div>
                 </div>
             </div>
-                              
-            <div id="IO_monitor" class="m-2 border justify-content-center rounded l1" style="display: none;">
-                <h2 class ="text-center">Monitor de Sinais</h2>
-                <div class="m-2 p-2 border rounded l2">
-                    <h6 class ="text-center">
-                        Seletor de Módulo de IOs
-                    </h6>
-                    <div class="checkbox d-flex flex-row justify-content-around rounded">
-                        <input id="io-module-selector" type="checkbox" checked data-toggle="toggle" data-on="IOs Fisícos" data-off="Emulador de IOs" data-onstyle="success" data-offstyle="danger"  data-width="200">
-                    </div>
-                </div>
-                <div class="m-2 p-2 border rounded l2">
-                    <h6 class ="text-center">
-                        Entradas
-                    </h6>
-                    <div class="d-flex flex-row justify-content-around rounded">
-                        <div class ="led" id="DI0" >DI0</div>
-                        <div class ="led" id="DI1" >DI1</div>
-                        <div class ="led" id="DI2" >DI2</div>
-                        <div class ="led" id="DI3" >DI3</div>
-                        <div class ="led" id="DI4" >DI4</div>
-                        <div class ="led" id="DI5" >DI5</div>
-                        <div class ="led" id="DI6" >DI6</div>
-                        <div class ="led" id="DI7" >DI7</div>
-                    </div>
-                </div>
-                <div class="m-2 p-2 border rounded l2">
-                    <h6 class ="text-center">
-                        Saídas
-                    </h6>                    
-                    <div class="d-flex flex-row justify-content-around rounded">
-                        <div class ="led" id="DO0" >DO0</div>
-                        <div class ="led" id="DO1" >DO1</div>
-                        <div class ="led" id="DO2" >DO2</div>
-                        <div class ="led" id="DO3" >DO3</div>
-                        <div class ="led" id="DO4" >DO4</div>
-                        <div class ="led" id="DO5" >DO5</div>
-                        <div class ="led" id="DO6" >DO6</div>
-                        <div class ="led" id="DO7" >DO7</div>
-                            
-                    </div>
-                    <div class="d-flex flex-row justify-content-around rounded">
-                        <div class ="led" id="DO8" >DO8</div>
-                        <div class ="led" id="DO9" >DO9</div>
-                        <div class ="led" id="DO10">DO10</div>
-                        <div class ="led" id="DO11">DO11</div>
-                        <div class ="led" id="DO12">DO12</div>
-                        <div class ="led" id="DO13">DO13</div>
-                        <div class ="led" id="DO14">DO14</div>
-                        <div class ="led" id="DO15">DO15</div>
-                    </div>    
-                </div>
-            </div>
-
-            <div id="autocomplete_content" style="display: none;">
-                <div class="list-group"> 
-                </div>
-            </div>
-
-            <div id="user_command_buttons" class="m-2 border rounded l1" style="display: none;">
-                <h2 class ="text-center">Comandos do Usuário</h2>
-                <div class="m-2 d-flex flex-column justify-content-around rounded">
-                    <button type="button" class="btn btn-secondary m-2" id ="btn-start">Iniciar</button>
-                    <button type="button" class="btn btn-secondary m-2" id ="btn-pause" >Interromper</button>
-                    <button type="button" class="btn btn-secondary m-2" id ="btn-resume">Retomar</button>
-                    <button type="button" class="btn btn-secondary m-2" id ="btn-finish">Finalizar após ciclo</button>
-                    <button type="button" class="btn btn-secondary m-2" id ="btn-finish_now">Finalizar imediatamente</button>
-                </div>
-            </div>
-            <div id="disconnected" class="m-2 border rounded l1" style="display: none;">
-                <h1 class ="text-center">Perda de conexão com o servidor.</h1>
-                <h2 class ="text-center">Verifique se o Raspberry Pi está ligado. </h2>
-            </div>
-                
         </div>
-    </body>
+
+        <div id="IO_monitor" class="m-2 border justify-content-center rounded l1" style="display: none;">
+            <h2 class="text-center">Monitor de Sinais</h2>
+            <div class="m-2 p-2 border rounded l2">
+                <h6 class="text-center">
+                    Seletor de Módulo de IOs
+                </h6>
+                <div class="checkbox d-flex flex-row justify-content-around rounded">
+                    <input id="io-module-selector" type="checkbox" checked data-toggle="toggle" data-on="IOs Fisícos"
+                        data-off="Emulador de IOs" data-onstyle="success" data-offstyle="danger" data-width="200">
+                </div>
+            </div>
+            <div class="m-2 p-2 border rounded l2">
+                <h6 class="text-center">
+                    Entradas
+                </h6>
+                <div class="d-flex flex-row justify-content-around rounded">
+                    <div class="led" id="DI0">DI0</div>
+                    <div class="led" id="DI1">DI1</div>
+                    <div class="led" id="DI2">DI2</div>
+                    <div class="led" id="DI3">DI3</div>
+                    <div class="led" id="DI4">DI4</div>
+                    <div class="led" id="DI5">DI5</div>
+                    <div class="led" id="DI6">DI6</div>
+                    <div class="led" id="DI7">DI7</div>
+                </div>
+            </div>
+            <div class="m-2 p-2 border rounded l2">
+                <h6 class="text-center">
+                    Saídas
+                </h6>
+                <div class="d-flex flex-row justify-content-around rounded">
+                    <div class="led" id="DO0">DO0</div>
+                    <div class="led" id="DO1">DO1</div>
+                    <div class="led" id="DO2">DO2</div>
+                    <div class="led" id="DO3">DO3</div>
+                    <div class="led" id="DO4">DO4</div>
+                    <div class="led" id="DO5">DO5</div>
+                    <div class="led" id="DO6">DO6</div>
+                    <div class="led" id="DO7">DO7</div>
+
+                </div>
+                <div class="d-flex flex-row justify-content-around rounded">
+                    <div class="led" id="DO8">DO8</div>
+                    <div class="led" id="DO9">DO9</div>
+                    <div class="led" id="DO10">DO10</div>
+                    <div class="led" id="DO11">DO11</div>
+                    <div class="led" id="DO12">DO12</div>
+                    <div class="led" id="DO13">DO13</div>
+                    <div class="led" id="DO14">DO14</div>
+                    <div class="led" id="DO15">DO15</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="user_command_buttons" class="m-2 border rounded l1" style="display: none;">
+            <h2 class="text-center">Comandos do Usuário</h2>
+            <div class="m-2 d-flex flex-column justify-content-around rounded">
+                <button type="button" class="btn btn-secondary m-2" id="btn-start">Iniciar</button>
+                <button type="button" class="btn btn-secondary m-2" id="btn-pause">Interromper</button>
+                <button type="button" class="btn btn-secondary m-2" id="btn-resume">Retomar</button>
+                <button type="button" class="btn btn-secondary m-2" id="btn-finish">Finalizar após ciclo</button>
+                <button type="button" class="btn btn-secondary m-2" id="btn-finish_now">Finalizar imediatamente</button>
+            </div>
+        </div>
+        <div id="disconnected" class="m-2 border rounded l1" style="display: none;">
+            <h1 class="text-center">Perda de conexão com o servidor.</h1>
+            <h2 class="text-center">Verifique se o Raspberry Pi está ligado. </h2>
+        </div>
+
+    </div>
+</body>
+
 </html>

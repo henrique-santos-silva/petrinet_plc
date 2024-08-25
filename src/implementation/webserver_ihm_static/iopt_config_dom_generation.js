@@ -1,3 +1,28 @@
+/**
+ * 
+ *
+ * @param {string} placeOrTransitionId
+ * @return {{ name: string, remainingString: string? }}
+ */
+function sanitizePlaceOrTransitionName(placeOrTransitionId){
+  function sanitize(s){
+    return s.trim().replaceAll(' ','_').toLowerCase();
+  }
+  
+  const startOfExpressionIndex = placeOrTransitionId.indexOf('(');
+  if (startOfExpressionIndex === -1) {
+    return { name: sanitize(placeOrTransitionId), remainingString: null};
+  }
+  let remainingString = placeOrTransitionId.slice(startOfExpressionIndex).trim();
+  remainingString = remainingString.slice(1, remainingString.length - 1);
+
+  return {
+    name: sanitize(placeOrTransitionId.slice(0, startOfExpressionIndex)),
+    remainingString,
+  };
+
+}
+
 function petrinet_xml2json(file) {
     return new Promise((resolve, reject) => {
       if (file) {
@@ -18,6 +43,13 @@ function petrinet_xml2json(file) {
 
             // Access all the place elements
             const placeElements = xmlDoc.querySelectorAll("place");
+          
+            // dict used to create 'marking_to_output_expressions' obj in json
+            const dict_output_to_listOfPlaces = {};
+            for (let i = 0; i <= 15; i++) {
+              dict_output_to_listOfPlaces[`DO${i}`] = [];
+            }
+
             placeElements.forEach((placeElement, index) => {
                 const id = placeElement.getAttribute("id");
                 const initial_marking = parseInt(placeElement.querySelector("initialMarking").querySelector("value").textContent.split(',')[1]); 
@@ -27,10 +59,30 @@ function petrinet_xml2json(file) {
                 const y_position = parseFloat(placeElement.querySelector("graphics").querySelector("position").getAttribute("y"));
                 const graphics = {x_position,y_position};
                 
-                IOPT_dictionary['places'].push({id,initial_marking,capacity,graphics});
+                const {placeName, outputSignals} = get_output_signals_from_place_id(id);
+                IOPT_dictionary['places'].push({id:placeName,initial_marking,capacity,graphics});
+                
+                outputSignals.forEach(o => {
+                  if (o in dict_output_to_listOfPlaces){
+                    dict_output_to_listOfPlaces[o].push(placeName)
+                  }else{
+                    dict_output_to_listOfPlaces[o] = [placeName]
+                  }
+                });
+
                 
                 console.log(`Place ${index + 1}: id - ${id}, initial_marking - ${initial_marking}, capacity - ${capacity}`);
             });
+
+            Object.entries(dict_output_to_listOfPlaces).forEach(([key, listOfPlaces]) => {
+              if (listOfPlaces.length > 0){
+                dict_output_to_listOfPlaces[key] = listOfPlaces.join(" || "); 
+              }else{
+                dict_output_to_listOfPlaces[key] = "false";
+              }
+
+            });
+            IOPT_dictionary["marking_to_output_expressions"] = dict_output_to_listOfPlaces
 
             const transitionElements = xmlDoc.querySelectorAll("transition");
             transitionElements.forEach((transitionElement, index) => {
@@ -44,14 +96,25 @@ function petrinet_xml2json(file) {
                 const rotation   = parseInt(transitionElement.querySelector("orientation").querySelector("value").textContent);
                 const graphics = {x_position,y_position,rotation}
                 
-                IOPT_dictionary[timed?'timed_transitions':'instantaneous_transitions'].push({id,rate,priority,graphics});
+                let {transitionName,enablingExpression} = get_transition_signal_enabling_expression_from_id(id);
+                
+                transitionObj = {
+                  id:transitionName,
+                  signal_enabling_expression: enablingExpression,
+                  rate,priority,graphics
+                }
+                if (timed){
+                  transitionObj["timer_sec"] = rate
+                }
+
+                IOPT_dictionary[timed?'timed_transitions':'instantaneous_transitions'].push(transitionObj);
             });
 
             const arcElements = xmlDoc.querySelectorAll("arc");
             arcElements.forEach((arcElement, index) => {
                 const id = arcElement.getAttribute("id");
-                const source = arcElement.getAttribute("source");
-                const target = arcElement.getAttribute("target");
+                const {name:source} = sanitizePlaceOrTransitionName(arcElement.getAttribute("source"));
+                const {name:target} = sanitizePlaceOrTransitionName(arcElement.getAttribute("target"));
                 const weight = parseInt(arcElement.querySelector("inscription").querySelector("value").textContent.split(',')[1]);
                 const type = arcElement.querySelector("type").getAttribute("value");
 
@@ -66,6 +129,7 @@ function petrinet_xml2json(file) {
                 
                 IOPT_dictionary['arcs'].push({id,source,target,weight,type,graphic_path})
             });
+            console.log(IOPT_dictionary)
             resolve(IOPT_dictionary);
         };
   
@@ -81,206 +145,38 @@ function petrinet_xml2json(file) {
     });
   }
 
-  function petrinet_load_json(file) {
-    return new Promise((resolve, reject) => {
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const fileContent = e.target.result;
-            let IOPT_dictionary
-            try {
-              // Parse the JSON data into a JavaScript object
-              IOPT_dictionary = JSON.parse(e.target.result);
-            } catch (error) {
-                console.error("Error parsing JSON:", error);
-            }
-            resolve(IOPT_dictionary);
-        };
-  
-        reader.onerror = function (error) {
-          reject(error);
-        };
-  
-        reader.readAsText(file);
 
-      } else {
-        reject(new Error("Nenhum arquivo fornecido."));
-      }
-    });
+
+/**
+ * Given a placeId, returns the place name and a list of output signals associated with that place.
+ *
+ * @param {string} placeId - The ID of the place to check.
+ * @return {{ placeName: string, outputSignals: string[] }} - An object containing the place name and an array of output signals associated with the place.
+ */
+function get_output_signals_from_place_id(placeId) {
+  const {name:placeName,remainingString:signalsString} = sanitizePlaceOrTransitionName(placeId  )
+  let outputSignals = [];
+  if (signalsString !== null){
+    outputSignals = signalsString
+      .split(';')
+      .filter(s => s !== '')
+      .map(s => s.trim());
+  }
+  return { placeName, outputSignals };
   }
 
-  
-
-
-
-
-function generate_IOPT_config_div(
-  IOPT_dictionary, //dict
-  loaded_from_json, //bool
-  inputs_name_list, //list[str]
-  outputs_name_list, //list[str]
-){
-    generate_transition_signal_enabling_condition_container(IOPT_dictionary, loaded_from_json, inputs_name_list)
-    generate_output_activation_condition_container(IOPT_dictionary, loaded_from_json, outputs_name_list )
-    
-    //--------------------------------
-    const timed_transition_timer_Element = document.getElementById('timed_transition_timer_container');
-    timed_transition_timer_Element.textContent = "";
-    // Controle de visibilidade do container de timers
-    IOPT_dictionary["timed_transitions"].length > 0 ? $("#timer_div").show() : $("#timer_div").hide();
-
-    IOPT_dictionary["timed_transitions"].forEach((transition, index) => {
-      const transitionName = transition["id"];
-
-      // Cria a linha 'row' para o grupo de label e input
-      const outerDiv = document.createElement('div');
-      outerDiv.classList.add('row', 'my-1');
-
-      // Cria a coluna para o label
-      const labelCol = document.createElement('div');
-      labelCol.classList.add('col-md-3', 'd-flex', 'align-items-center');
-
-      // Cria a etiqueta <label>
-      const label = document.createElement('label');
-      label.classList.add('form-label');
-      label.setAttribute('for', `timed_transition_timer-${transitionName}`);
-      label.textContent = transitionName;
-      labelCol.appendChild(label);
-
-      // Cria a coluna para o input
-      const inputCol = document.createElement('div');
-      inputCol.classList.add('col-md-9');
-
-      // Cria o input
-      const input = document.createElement('input');
-      input.setAttribute('type', 'number');
-      input.setAttribute('step', '0.01');
-      input.classList.add('form-control'); // Classe do Bootstrap para estilização dos inputs
-      input.classList.add('timed_transition_timer_textfield');
-      input.setAttribute('name', `timed_transition_timer-${transitionName}`);
-      input.setAttribute('id', `timed_transition_timer-${transitionName}`);
-      input.setAttribute('required', true);
-      input.value = loaded_from_json ? transition["timer_sec"] : 0.01;
-      input.addEventListener("change", function () {
-        this.value = Math.max(0.01, parseFloat(this.value));
-      });
-      inputCol.appendChild(input);
-
-      // Anexa as colunas à div externa
-      outerDiv.appendChild(labelCol);
-      outerDiv.appendChild(inputCol);
-
-      // Anexa a div externa à div principal
-      timed_transition_timer_Element.appendChild(outerDiv);
-    });
-
-
-    $('#IOPT_config').show()
-}
-
-
-function generate_transition_signal_enabling_condition_container(
-  IOPT_dictionary, //dict
-  loaded_from_json, //bool
-  inputs_name_list //list[str]
-){
-  // -------------- Input to Transitons-------------------------------------------------------------
-  const transition_signal_enabling_condition_container = document.getElementById('transition_signal_enabling_condition_container');
-
-  transition_signal_enabling_condition_container.textContent="";
-  const transitions = [...IOPT_dictionary["instantaneous_transitions"],...IOPT_dictionary["timed_transitions"]];
-  
-  for (const transition of transitions){
-    const transitionName = transition.id;
-
-    const outerDiv = document.createElement('div');
-    outerDiv.classList.add('row', 'my-1');
-
-      const labelCol = document.createElement('div');
-      labelCol.classList.add('col-md-3', 'd-flex', 'align-items-center');
-
-        const label = document.createElement('label');
-        label.classList.add('form-label');
-        label.setAttribute('for', `transition_signal_enabling_condition-${transitionName}`);
-        label.textContent = transitionName;
-      
-        labelCol.appendChild(label);
-      outerDiv.appendChild(labelCol);
-    
-
-      const inputCol = document.createElement('div');
-      inputCol.classList.add('col-md-9');
-        
-        const input = document.createElement('input');
-        input.setAttribute('type', 'text');
-        input.classList.add('form-control');
-        input.classList.add('transition_signal_enabling_condition_textfield');
-
-        input.setAttribute('name', `transition_signal_enabling_condition-${transitionName}`);
-        input.setAttribute('id', `transition_signal_enabling_condition-${transitionName}`); 
-        input.setAttribute('autocomplete', `off`); 
-
-
-        if (loaded_from_json){
-          input.value = transition["signal_enabling_expression"];
-          const event = new Event('change');
-          input.dispatchEvent(event);
-        }else{
-          input.value = "true";
-        }
-
-        inputCol.appendChild(input);
-      outerDiv.appendChild(inputCol);
-      transition_signal_enabling_condition_container.appendChild(outerDiv);
-  }
-}
-
-function generate_output_activation_condition_container(
-  IOPT_dictionary, //dict
-  loaded_from_json, //bool
-  outputs_name_list //list[str]
-){
-  const output_activation_condition_container = document.getElementById('output_activation_condition_container');
-  output_activation_condition_container.textContent = "";
-
-  for (const output_name of outputs_name_list){
-    const outerDiv = document.createElement('div');
-    outerDiv.classList.add('row', 'my-1');
-
-      // Cria a coluna para o label
-      const labelCol = document.createElement('div');
-      labelCol.classList.add('col-md-3', 'd-flex', 'align-items-center'); // Definindo o tamanho da coluna e alinhamento
-
-        // Cria a etiqueta <label>
-        const label = document.createElement('label');
-        label.classList.add('form-label');
-        label.setAttribute('for', `output_activation_condition-${output_name}`);
-        label.textContent = output_name;
-        labelCol.appendChild(label); // Anexa o label à sua coluna
-      outerDiv.appendChild(labelCol);
-
-      // Cria a coluna para o input
-      const inputCol = document.createElement('div');
-      inputCol.classList.add('col-md-9'); // Definindo o tamanho da coluna
-
-        // Cria o input
-        const input = document.createElement('input');
-        input.setAttribute('type', 'text');
-        input.classList.add('form-control'); // Usando 'form-control' para estilização do Bootstrap
-        input.classList.add('output_activation_condition_textfield'); // Usando 'form-control' para estilização do Bootstrap
-        input.setAttribute('name', `output_activation_condition-${output_name}`);
-        input.setAttribute('id', `output_activation_condition-${output_name}`);
-
-        if (loaded_from_json){
-          input.value=IOPT_dictionary["marking_to_output_expressions"][output_name]
-          const event = new Event('change');
-          input.dispatchEvent(event);
-        }else{
-          input.value = "false"
-        }
-        inputCol.appendChild(input);
-      outerDiv.appendChild(inputCol);
-      output_activation_condition_container.appendChild(outerDiv);
-  }
-
+/**
+ * Extracts the transition name and enabling expression from a given transitionId.
+ * If the transitionId contains an expression in parentheses, returns the name and the expression.
+ * If the transitionId does not contain an expression, returns the name and 'true'.
+ * 
+ * @param {string} transitionId - The ID of the transition to parse.
+ * @return {{ transitionName: string, enablingExpression: string }} - An object containing the transition name and the enabling expression.
+ */
+function get_transition_signal_enabling_expression_from_id(transitionId) {
+  const {name:transitionName,remainingString} = sanitizePlaceOrTransitionName(transitionId)
+    return {
+    transitionName,
+    enablingExpression: remainingString ?? "true"
+    };
 }
