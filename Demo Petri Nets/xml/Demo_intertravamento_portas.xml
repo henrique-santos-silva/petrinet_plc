@@ -21,14 +21,14 @@
                 <value>0</value>
             </capacity>
         </place>
-        <place id="P1_TRAVADA">
+        <place id="P1_TRAVADA (DO1;DO7)">
             <graphics>
                 <position x="390.0" y="390.0"/>
             </graphics>
             <name>
-                <value>P1_TRAVADA</value>
+                <value>P1_TRAVADA (DO1;DO7)</value>
                 <graphics>
-                    <offset x="53.0" y="-15.0"/>
+                    <offset x="75.0" y="-32.0"/>
                 </graphics>
             </name>
             <initialMarking>
@@ -41,12 +41,12 @@
                 <value>0</value>
             </capacity>
         </place>
-        <place id="P2_TRAVADA">
+        <place id="P2_TRAVADA (DO0;DO7)">
             <graphics>
                 <position x="390.0" y="180.0"/>
             </graphics>
             <name>
-                <value>P2_TRAVADA</value>
+                <value>P2_TRAVADA (DO0;DO7)</value>
                 <graphics>
                     <offset x="59.0" y="51.0"/>
                 </graphics>
@@ -61,12 +61,12 @@
                 <value>0</value>
             </capacity>
         </place>
-        <transition id="T_SP1_ABERTA">
+        <transition id="T_SP1_ABERTA (DI0)">
             <graphics>
                 <position x="285.0" y="180.0"/>
             </graphics>
             <name>
-                <value>T_SP1_ABERTA</value>
+                <value>T_SP1_ABERTA (DI0)</value>
                 <graphics>
                     <offset x="56.0" y="-9.0"/>
                 </graphics>
@@ -87,12 +87,12 @@
                 <value>1</value>
             </priority>
         </transition>
-        <transition id="T_SP1_FECHADA">
+        <transition id="T_SP1_FECHADA ( !DI0 )">
             <graphics>
                 <position x="480.0" y="150.0"/>
             </graphics>
             <name>
-                <value>T_SP1_FECHADA</value>
+                <value>T_SP1_FECHADA ( !DI0 )</value>
                 <graphics>
                     <offset x="72.0" y="52.0"/>
                 </graphics>
@@ -101,7 +101,7 @@
                 <value>0</value>
             </orientation>
             <rate>
-                <value>1.0</value>
+                <value>5.0</value>
             </rate>
             <timed>
                 <value>true</value>
@@ -113,12 +113,12 @@
                 <value>1</value>
             </priority>
         </transition>
-        <transition id="T_SP2_ABERTA">
+        <transition id="T_SP2_ABERTA (DI1)">
             <graphics>
                 <position x="270.0" y="360.0"/>
             </graphics>
             <name>
-                <value>T_SP2_ABERTA</value>
+                <value>T_SP2_ABERTA (DI1)</value>
                 <graphics>
                     <offset x="59.0" y="53.0"/>
                 </graphics>
@@ -139,12 +139,12 @@
                 <value>1</value>
             </priority>
         </transition>
-        <transition id="T_SP2_FECHADA">
+        <transition id="T_SP2_FECHADA ( ! DI1 )">
             <graphics>
                 <position x="465.0" y="405.0"/>
             </graphics>
             <name>
-                <value>T_SP2_FECHADA</value>
+                <value>T_SP2_FECHADA ( ! DI1 )</value>
                 <graphics>
                     <offset x="95.0" y="-20.0"/>
                 </graphics>
@@ -165,7 +165,7 @@
                 <value>1</value>
             </priority>
         </transition>
-        <arc id="P0 to T0" source="P_IDLE" target="T_SP2_ABERTA">
+        <arc id="P0 to T0" source="P_IDLE" target="T_SP2_ABERTA (DI1)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -178,7 +178,7 @@
             <arcpath id="001" x="276" y="372" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="P0 to T1" source="P_IDLE" target="T_SP1_ABERTA">
+        <arc id="P0 to T1" source="P_IDLE" target="T_SP1_ABERTA (DI0)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -191,7 +191,7 @@
             <arcpath id="001" x="291" y="192" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="P1 to T3" source="P2_TRAVADA" target="T_SP1_FECHADA">
+        <arc id="P1 to T3" source="P2_TRAVADA (DO0;DO7)" target="T_SP1_FECHADA ( !DI0 )">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -204,7 +204,7 @@
             <arcpath id="001" x="486" y="162" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="P2 to T2" source="P1_TRAVADA" target="T_SP2_FECHADA">
+        <arc id="P2 to T2" source="P1_TRAVADA (DO1;DO7)" target="T_SP2_FECHADA ( ! DI1 )">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -217,7 +217,7 @@
             <arcpath id="001" x="471" y="417" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="T0 to P2" source="T_SP2_ABERTA" target="P1_TRAVADA">
+        <arc id="T0 to P2" source="T_SP2_ABERTA (DI1)" target="P1_TRAVADA (DO1;DO7)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -230,7 +230,7 @@
             <arcpath id="001" x="387" y="398" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="T1 to P1" source="T_SP1_ABERTA" target="P2_TRAVADA">
+        <arc id="T1 to P1" source="T_SP1_ABERTA (DI0)" target="P2_TRAVADA (DO0;DO7)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -243,7 +243,7 @@
             <arcpath id="001" x="387" y="192" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="T2 to P0" source="T_SP2_FECHADA" target="P_IDLE">
+        <arc id="T2 to P0" source="T_SP2_FECHADA ( ! DI1 )" target="P_IDLE">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -253,12 +253,12 @@
                 <value>false</value>
             </tagged>
             <arcpath id="000" x="477" y="432" curvePoint="false"/>
-            <arcpath id="001" x="478" y="508" curvePoint="false"/>
-            <arcpath id="002" x="178" y="493" curvePoint="false"/>
+            <arcpath id="001" x="479" y="509" curvePoint="false"/>
+            <arcpath id="002" x="179" y="494" curvePoint="false"/>
             <arcpath id="003" x="190" y="326" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="T3 to P0" source="T_SP1_FECHADA" target="P_IDLE">
+        <arc id="T3 to P0" source="T_SP1_FECHADA ( !DI0 )" target="P_IDLE">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -268,8 +268,8 @@
                 <value>false</value>
             </tagged>
             <arcpath id="000" x="492" y="147" curvePoint="false"/>
-            <arcpath id="001" x="493" y="88" curvePoint="false"/>
-            <arcpath id="002" x="178" y="88" curvePoint="false"/>
+            <arcpath id="001" x="494" y="89" curvePoint="false"/>
+            <arcpath id="002" x="179" y="89" curvePoint="false"/>
             <arcpath id="003" x="191" y="297" curvePoint="false"/>
             <type value="normal"/>
         </arc>

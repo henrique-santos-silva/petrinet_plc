@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><pnml>
     <net id="Net-One" type="P/T net">
         <token id="Default" enabled="true" red="0" green="0" blue="0"/>
-        <place id="P0">
+        <place id="P0 (DO0)">
             <graphics>
                 <position x="375.0" y="225.0"/>
             </graphics>
             <name>
-                <value>P0</value>
+                <value>P0 (DO0)</value>
                 <graphics>
-                    <offset x="0.0" y="0.0"/>
+                    <offset x="34.0" y="-8.0"/>
                 </graphics>
             </name>
             <initialMarking>
@@ -21,12 +21,12 @@
                 <value>1</value>
             </capacity>
         </place>
-        <place id="P1">
+        <place id="P1 (DO1)">
             <graphics>
                 <position x="450.0" y="435.0"/>
             </graphics>
             <name>
-                <value>P1</value>
+                <value>P1 (DO1)</value>
                 <graphics>
                     <offset x="0.0" y="0.0"/>
                 </graphics>
@@ -41,14 +41,14 @@
                 <value>0</value>
             </capacity>
         </place>
-        <transition id="T0">
+        <transition id="T0 (DI0)">
             <graphics>
                 <position x="285.0" y="225.0"/>
             </graphics>
             <name>
-                <value>T0</value>
+                <value>T0 (DI0)</value>
                 <graphics>
-                    <offset x="-5.0" y="35.0"/>
+                    <offset x="-42.0" y="25.0"/>
                 </graphics>
             </name>
             <orientation>
@@ -67,12 +67,12 @@
                 <value>1</value>
             </priority>
         </transition>
-        <transition id="T1">
+        <transition id="T1 (DI1)">
             <graphics>
                 <position x="450.0" y="225.0"/>
             </graphics>
             <name>
-                <value>T1</value>
+                <value>T1 (DI1)</value>
                 <graphics>
                     <offset x="-5.0" y="35.0"/>
                 </graphics>
@@ -93,12 +93,12 @@
                 <value>1</value>
             </priority>
         </transition>
-        <transition id="T2">
+        <transition id="T2 (DI2)">
             <graphics>
                 <position x="450.0" y="330.0"/>
             </graphics>
             <name>
-                <value>T2</value>
+                <value>T2 (DI2)</value>
                 <graphics>
                     <offset x="-5.0" y="35.0"/>
                 </graphics>
@@ -119,7 +119,7 @@
                 <value>1</value>
             </priority>
         </transition>
-        <arc id="P0 to T1" source="P0" target="T1">
+        <arc id="P0 to T1" source="P0 (DO0)" target="T1 (DI1)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -132,7 +132,7 @@
             <arcpath id="001" x="456" y="237" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="P0 to T2" source="P0" target="T2">
+        <arc id="P0 to T2" source="P0 (DO0)" target="T2 (DI2)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -145,7 +145,7 @@
             <arcpath id="001" x="456" y="342" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="P1 to T0" source="P1" target="T0">
+        <arc id="P1 to T0" source="P1 (DO1)" target="T0 (DI0)">
             <graphics/>
             <inscription>
                 <value/>
@@ -158,7 +158,7 @@
             <arcpath id="001" x="301" y="242" curvePoint="false"/>
             <type value="inhibitor"/>
         </arc>
-        <arc id="T0 to P0" source="T0" target="P0">
+        <arc id="T0 to P0" source="T0 (DI0)" target="P0 (DO0)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
@@ -171,7 +171,7 @@
             <arcpath id="001" x="372" y="236" curvePoint="false"/>
             <type value="normal"/>
         </arc>
-        <arc id="T2 to P1" source="T2" target="P1">
+        <arc id="T2 to P1" source="T2 (DI2)" target="P1 (DO1)">
             <graphics/>
             <inscription>
                 <value>Default,1</value>
