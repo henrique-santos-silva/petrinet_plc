@@ -76,7 +76,7 @@ function petrinet_xml2json(file) {
 
             Object.entries(dict_output_to_listOfPlaces).forEach(([key, listOfPlaces]) => {
               if (listOfPlaces.length > 0){
-                dict_output_to_listOfPlaces[key] = listOfPlaces.join(" | "); 
+                dict_output_to_listOfPlaces[key] = listOfPlaces.join(" || "); 
               }else{
                 dict_output_to_listOfPlaces[key] = "false";
               }
