@@ -103,26 +103,18 @@ $(document).ready(function (){
         function(){
             const IOPT_dictionary = JSON.parse(localStorage.getItem("IOPT_dictionary"));
             if ($(this).attr('id') == "btn-try_to_send_iopt_config"){
-                console.log("if ($(this).attr('id') == 'btn-try_to_send_iopt_config')")
-                if(is_form_valid(IOPT_dictionary)){
-                    console.log("if(is_form_valid(IOPT_dictionary))")
-            
-                    socket.emit('stateMachine_event_update','FileUploaded')
-                    socket.emit("IOPT_update",JSON.stringify(IOPT_dictionary))
-                    localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
-                    $("#petrinet_json_file").val('')
-                    $("#petrinet_xml_file").val('')
-                    console.log(IOPT_dictionary)
-   
-                    localStorage.removeItem('IOPT_dictionary');
-                    $("#user_command_buttons").show()
-                    $("#IO_monitor").show()
-                    $("#IOPT_config").hide()
-                }else{
-                    alert("campos inválidos")
-                }
+                socket.emit('stateMachine_event_update','FileUploaded')
+                socket.emit("IOPT_update",JSON.stringify(IOPT_dictionary))
+                localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
+                $("#petrinet_xml_file").val('')
+                console.log('on button click:',IOPT_dictionary)
+
+                localStorage.removeItem('IOPT_dictionary');
+                $("#user_command_buttons").show()
+                $("#IO_monitor").show()
+                $("#IOPT_config").hide()
+                
             }else if($(this).attr('id') == "btn-cancel_iopt_config"){
-                $("#petrinet_json_file").val('')
                 $("#petrinet_xml_file").val('')
                 localStorage.removeItem('IOPT_dictionary');
                 $("#IOPT_config").hide()
@@ -141,54 +133,25 @@ $(document).ready(function (){
 
         petrinet_xml2json(file)
         .then((IOPT_dictionary) => {
-            localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
-            generate_IOPT_config_div(
-                IOPT_dictionary,
-                loaded_from_json = false,
-                inputs_name_list = [...Array(8).keys()].map(i => `DI${i}`),
-                outputs_name_list = [...Array(16).keys()].map(i => `DO${i}`),
-            )
-            
-            apply_popover_to_inputs(
-                inputs = [...Array(8).keys()].map(i => `DI${i}`),
-                places = IOPT_dictionary.places.map(place => place.id)
-            )
-
-            console.log(IOPT_dictionary)
-            $("#user_command_buttons").hide()
-            $("#IO_monitor").hide()            
-          })
-          .catch((error) => {
-            console.error("Erro ao processar o arquivo:", error);
-           });
-
-    })
-
-    $("#petrinet_json_file").on("change",function(event){
-        const fileInput = event.target;
-        const file = fileInput.files[0];
-
-        petrinet_load_json(file)
-        .then((IOPT_dictionary) => {
-            localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
-            generate_IOPT_config_div(
-                IOPT_dictionary,
-                loaded_from_json = true,
-                inputs_name_list = [...Array(8).keys()].map(i => `DI${i}`),
-                outputs_name_list = [...Array(16).keys()].map(i => `DO${i}`),
-            )
-            
-            apply_popover_to_inputs(
-                inputs = [...Array(8).keys()].map(i => `DI${i}`),
-                places = IOPT_dictionary.places.map(place => place.id)
-            )
-            console.log(IOPT_dictionary)
             $("#user_command_buttons").hide()
             $("#IO_monitor").hide()
+
+            const ErrorsIOPT = validadeIOPT(IOPT_dictionary)
+            console.log('ErrorsIOPT',ErrorsIOPT)
+            localStorage.setItem("IOPT_dictionary", JSON.stringify(IOPT_dictionary))
+            console.log(IOPT_dictionary)
+            
+            if (Object.keys(ErrorsIOPT).length > 0){
+                $("#petrinet_xml_file").val('')
+                alert("ERROS Encontrados! Edite o seu xml e tente novamente!\n" + JSON.stringify(ErrorsIOPT, null, 2))
+            }else{
+                $('#IOPT_config').show()            
+            }
           })
           .catch((error) => {
             console.error("Erro ao processar o arquivo:", error);
            });
+
     })
 
     socket.on('message', function(data) {
