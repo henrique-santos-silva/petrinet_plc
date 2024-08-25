@@ -143,5 +143,47 @@ function validadeIOPT(IOPT_dictionary) {
         errors['transitionSignalEnablingExpresionErrors'] = transitionSignalEnablingExpresionErrors;
     }
 
+    // check places and transition names
+    const invalidPlaceNameErrors = []
+    placeNames = IOPT_dictionary['places'].map(p=>p.id);
+    placeNames.forEach(pname=>{
+        if (!isValidPythonVariableName(pname) || pname[0].toLowerCase() !== 'p'){
+            invalidPlaceNameErrors.push(pname);
+        }
+    })
+    if (invalidPlaceNameErrors.length > 0){
+        errors['invalidPlaceNameErrors'] = invalidPlaceNameErrors;
+    }
+
+    const invalidTransitionNameErrors = []
+    transitionList.map(t => t.id).forEach( tname => {
+        if (!isValidPythonVariableName(tname)){
+            invalidTransitionNameErrors.push(tname);
+        }
+    })
+    if (invalidTransitionNameErrors.length > 0){
+        errors['invalidTransitionNameErrors'] = invalidTransitionNameErrors;
+    }
+
     return errors;
+}
+
+
+function isValidPythonVariableName(name) {
+    // Verifique se o nome é uma palavra reservada em Python
+    const pythonKeywords = new Set([
+        "False", "None", "True", "and", "as", "assert", "async", "await", "break", 
+        "class", "continue", "def", "del", "elif", "else", "except", "finally", 
+        "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", 
+        "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"
+    ]);
+
+    if (pythonKeywords.has(name)) {
+        return false;
+    }
+
+    // Verifique se o nome segue as regras de nomenclatura
+    const validPattern = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+    return validPattern.test(name);
 }
