@@ -6,7 +6,7 @@
  */
 function sanitizePlaceOrTransitionName(placeOrTransitionId){
   function sanitize(s){
-    return s.trim().replace(' ','_').toLowerCase();
+    return s.trim().replaceAll(' ','_').toLowerCase();
   }
   
   const startOfExpressionIndex = placeOrTransitionId.indexOf('(');
@@ -76,9 +76,9 @@ function petrinet_xml2json(file) {
 
             Object.entries(dict_output_to_listOfPlaces).forEach(([key, listOfPlaces]) => {
               if (listOfPlaces.length > 0){
-                dict_output_to_listOfPlaces[key] = listOfPlaces.join(" || "); 
+                dict_output_to_listOfPlaces[key] = listOfPlaces.join(" | "); 
               }else{
-                dict_output_to_listOfPlaces[key] = "true";
+                dict_output_to_listOfPlaces[key] = "false";
               }
 
             });

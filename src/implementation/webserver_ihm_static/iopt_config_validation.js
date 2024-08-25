@@ -70,32 +70,33 @@ function is_valid_expression( //--> list[str]
     }
 }
 
-function is_form_valid(IOPT_dictionary) {
-    const transition_signal_enabling_condition = IOPT_dictionary["transition_signal_enabling_condition"] || {};
+
+function validadeIOPT(IOPT_dictionary) {
+    
+    const errors = {};
+
+    // verifica se os digital outputs são os esperados
     const marking_to_output_expressions = IOPT_dictionary["marking_to_output_expressions"] || {};
 
-    // Validação das condições de habilitação de transição
-    for (const transitionName in transition_signal_enabling_condition) {
-        const expression = transition_signal_enabling_condition[transitionName];
-        const [valid_expression_bool, new_string] = is_valid_expression(
-            expression,
-            [...Array(8).keys()].map(i => `DI${i}`) // Considera DI0 a DI7 como tokens válidos para transições
-        );
+    const expectedOutputsSet = new Set();
+    for (let i = 0; i <= 15; i++) {
+        const value = `DO${i}`;
+        expectedOutputsSet.add(value);
+    }
+    const actualOutputSet = new Set(Object.keys(marking_to_output_expressions))
 
-        if (!valid_expression_bool) {
-            return false;
-        }
+    const missingDigitalOutputs = [...expectedOutputsSet.difference(actualOutputSet)];
+    const exceedingDigitalOutputs = [...actualOutputSet.difference(expectedOutputsSet)];
 
-        // Atualiza a transição com a expressão válida
-        const transition = IOPT_dictionary["instantaneous_transitions"].find(t => t.id === transitionName) ||
-            IOPT_dictionary["timed_transitions"].find(t => t.id === transitionName);
-
-        if (transition) {
-            transition["signal_enabling_expression"] = new_string;
-        }
+    if (missingDigitalOutputs.length > 0){
+        errors['missingDigitalOutputs'] = missingDigitalOutputs;
+    }
+    if (exceedingDigitalOutputs.length > 0){
+        errors['exceedingDigitalOutputs'] = exceedingDigitalOutputs;
     }
 
     // Validação das condições de ativação de saída
+    let outputActivationExpressionErrors = {};
     for (const output_name in marking_to_output_expressions) {
         const expression = marking_to_output_expressions[output_name];
         const [valid_expression_bool, new_string] = is_valid_expression(
@@ -104,29 +105,43 @@ function is_form_valid(IOPT_dictionary) {
         );
 
         if (!valid_expression_bool) {
-            return false;
-        }
-
-        // Atualiza a expressão válida no dicionário de marcações para saídas
-        marking_to_output_expressions[output_name] = new_string;
-    }
-
-    // Validação dos temporizadores de transição temporizada
-    for (const transition of IOPT_dictionary["timed_transitions"]) {
-        if (transition["timer_sec"] < 0) {
-            return false;
+            outputActivationExpressionErrors[output_name] = expression;
+        }else{
+            // Atualiza a expressão válida no dicionário de marcações para saídas
+            marking_to_output_expressions[output_name] = new_string;
         }
     }
-
-    // Atualização final no IOPT_dictionary
-    IOPT_dictionary["marking_to_output_expressions"] = marking_to_output_expressions;
-    for (const transition of IOPT_dictionary["instantaneous_transitions"]) {
-        transition["signal_enabling_expression"] = transition_signal_enabling_condition[transition["id"]];
-    }
-    for (const transition of IOPT_dictionary["timed_transitions"]) {
-        transition["signal_enabling_expression"] = transition_signal_enabling_condition[transition["id"]];
-        transition["timer_sec"] = parseFloat(transition["timer_sec"]);
+    if (Object.keys(outputActivationExpressionErrors).length > 0){
+        errors['outputActivationExpressionErrors'] = outputActivationExpressionErrors
     }
 
-    return true;
+    const transitionSignalEnablingExpresionErrors = {}
+    const transitionList = [...IOPT_dictionary["instantaneous_transitions"],...IOPT_dictionary["timed_transitions"]] 
+    transitionList.forEach(t => {
+        const transitionName = t.id;
+        const expression = t.signal_enabling_expression;
+        const [valid_expression_bool, new_string] = is_valid_expression(
+            expression,
+            [...Array(8).keys()].map(i => `DI${i}`) // Considera DI0 a DI7 como tokens válidos para transições
+        );
+
+        if (!valid_expression_bool){
+            transitionSignalEnablingExpresionErrors[transitionName] = expression;
+        }else{
+            // Update expression
+            // Atualiza a transição com a expressão válida
+            const transition = 
+                IOPT_dictionary["instantaneous_transitions"].find(t => t.id === transitionName) ||
+                IOPT_dictionary["timed_transitions"].find(t => t.id === transitionName);
+
+            if (transition) {
+                transition["signal_enabling_expression"] = new_string;
+            }
+        }
+    });
+    if (Object.keys(transitionSignalEnablingExpresionErrors).length > 0){
+        errors['transitionSignalEnablingExpresionErrors'] = transitionSignalEnablingExpresionErrors;
+    }
+
+    return errors;
 }
