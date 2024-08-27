@@ -13,7 +13,8 @@ function is_valid_expression( //--> list[str]
     basicTokensRegression = {
         'true':'true','false':'false','(':'(',')':')',
         '||':'|', '&&':'&', '^':'^', '!':'!', '~':'!',
-        'and':'&','or': '|','not': '!','xor': '^'  
+        'and':'&','or': '|','not': '!','xor': '^',
+        'AND':'&','OR': '|','NOT': '!','XOR': '^'  
     }
     const basic_tokens = ['(', ')', '||', '&&', '^', '!', '~', 'true', 'false', 'and', 'or', 'not', 'xor'];
     const valid_tokens = [...extra_tokens, ...basic_tokens];
